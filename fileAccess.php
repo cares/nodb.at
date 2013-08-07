@@ -16,7 +16,7 @@ function insertLineAt($lineNumber,$line,$path)
 function addLine($value,$columname,$tablename,$dbname)
 {
 	global $absolute_path_to_database_root_folder;
-	$path = $absolute_path_to_database_root_folder.$slash.$dbname.$slash.$tablename.$lash.$columnname.".php";
+	$path = $absolute_path_to_database_root_folder.$slash.$dbname.$slash.$tablename.$slash.$columnname.".php";
 	if(!is_dir($path))
 	{
 		file_put_contents($path, $value, FILE_APPEND);

@@ -24,41 +24,59 @@ success(delDatabase("databaseTest3"));
 echo "<hr><br><h1 color='red'>test table commands</h1><br>";
 
 comment("create table");
-success(addTable("tableTest1","databaseTest1",$accessRights));
+success(addTable("testTable1","databaseTest1",$accessRights));
+
+comment("copy table");
+success(copyTable("testTable1","testTable2","databaseTest1",$accessRights));
 
 comment("rename table");
-success(renameTable("tableTest2"));
+success(renameTable("testTable2","testTable3","databaseTest1"));
 
 comment("delete table");
-success(delTable("tableTest2"));
+success(delTable("testTable3"));
 
 echo "<hr><br><h1 color='red'>test column commands</h1><br>";
 
-comment("delete column");
-success(delColumn("columnTest1"));
+comment("create column");
+success(addColumn("columnTest1","testTable1","databaseTest1",$accessRights));
 
 comment("create column");
-success(addColumn("columnTest1",$accessRights));
+success(addColumn("columnTest2","testTable1","databaseTest1",$accessRights));
 
 comment("rename column");
-success(renameColumn("columnTest2"));
+success(renameColumn("columnTest2","columnTest3","testTable1"));
+
+comment("delete column");
+success(delColumn("columnTest1"));
+success(delColumn("columnTest3"));
 
 echo "<hr><br><h1 color='red'>test record management commands</h1><br>";
 
-comment("delete record");
-success(delete($dbname,$tablename,$index));
+success(addColumn("name","testTable1","databaseTest1",$accessRights));
+success(addColumn("street","testTable1","databaseTest1",$accessRights));
+success(addColumn("phone","testTable1","databaseTest1",$accessRights));
+success(addColumn("mail","testTable1","databaseTest1",$accessRights));
 
-comment("insert record at end (no lineNumber given)");
-success(insert($dbname,$tablename,$columname_values));
+comment("add record at end (no lineNumber given)");
+$name = "tom";
+success(add("name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;"));
+$name = "jerry";
+success(add("name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;"));
 
 comment("insert record at position (lineNumber given)");
-success(insert($dbname,$tablename,$columname_values,$index));
+$name = "joe";
+success(insert(1,"name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;"));
+$name = "jim";
+success(insert(3,"name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;"));
+$name = "jeremy";
+success(insert(0,"name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;"));
 
 comment("change record");
-success(change($dbname,$tablename,$columname_values,$index));
+$name = "rachel";
+success(change(3,"name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;"));
 
-comment("recreate record");
-success(insert($dbname,$tablename,$columname_values));
+comment("delete record");
+success(delete(0));
 
 echo "<hr><br><h1 color='red'>try record read commands</h1><br>";
 
