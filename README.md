@@ -11,7 +11,6 @@ database = folder
 table = subfolder
 
 column = file in subfolder ;)
-
 so theoretically you could have a table inside a table or even work with filesystem links (linux ln -sv command)
 
 ## implemented commands:
@@ -80,3 +79,12 @@ value4
 value5
 
 </pre>
+
+
+# ==== TODO ====
+
+o implement all the functions
+
+o build a nodbmyadmin.php that like phpmyadmin let you easily modify the database.
+
+o remember the last used database and table and make all following operations on them
