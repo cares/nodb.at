@@ -687,25 +687,27 @@ function read($index,$tableName = "",$dbname = "")
 	if(is_array($index))
 	{
 		$indexCount = count($index);
-		// iterate over files/columns
-		for($i = 0;$i < $fileCount;$i++)
+
+		// iterate over indices
+		for($j = 0;$j < $indexCount;$j++)
 		{
-			$currentFile = $files[$i];
-			if(!(($currentFile == ".") || ($currentFile == "..")))
+			$currentIndex = $index[$j];
+			$subArray = array();
+
+			// iterate over files/columns	
+			for($i = 0;$i < $fileCount;$i++)
 			{
-				$subArray = array();
+				$currentFile = $files[$i];
 				$lines = file($path_to_table.$slash.$currentFile);
-				$currentFile = substr($currentFile, 0, -4); // strip away .php
-	
-				// iterate over indices
-				for($j = 0;$j < $indexCount;$j++)
+				if(!(($currentFile == ".") || ($currentFile == "..")))
 				{
-					$currentIndex = $index[$j];
-					$lines[$currentIndex] = str_replace(array("\r\n", "\r", "\n"), "", $lines[$currentIndex]); // remove linebreaks
-					$subArray[$currentFile] = $lines[$currentIndex];
+					$key = substr($currentFile, 0, -4); // strip away .php
+					$value = str_replace(array("\r\n", "\r", "\n"), "", $lines[$currentIndex]); // remove linebreaks
+					$subArray[$key] = $value;
 				}
-				$result[] = $subArray;
 			}
+			$result[] = $subArray;
+			$worked = true;
 		}
 	}
 	// 2. get a range of records "from a table read("0-3")"
@@ -714,31 +716,30 @@ function read($index,$tableName = "",$dbname = "")
 		$index_start_stop = split("-",$index);
 		$start = $index_start_stop[0];
 		$stop = $index_start_stop[1];
-		
-		$indexCount = count($index);
-		// iterate over files/columns
-		for($i = 0;$i < $fileCount;$i++)
+
+		// iterate over indices
+		for($j = $start;$j < $stop;$j++)
 		{
-			$currentFile = $files[$i];
-			if(!(($currentFile == ".") || ($currentFile == "..")))
+			$currentIndex = $j;
+			$subArray = array();
+
+			// iterate over files/columns
+			for($i = 0;$i < $fileCount;$i++)
 			{
-				$subArray = array();
-	
-				// iterate over indices
-				for($j = $start;$j < $stop;$j++)
+				$currentFile = $files[$i];
+				$lines = file($path_to_table.$slash.$currentFile);
+				if(!(($currentFile == ".") || ($currentFile == "..")))
 				{
-					$currentIndex = $index[$j];
-					$lines = file($path_to_table.$slash.$currentFile);
-					$currentFile = substr($currentFile, 0, -4); // strip away .php
-					$lines[$index] = str_replace(array("\r\n", "\r"), "\n", $lines[$index]); // remove linebreaks
-					$subArray[] = $lines[$index];
+					$key = substr($currentFile, 0, -4); // strip away .php
+					$value = str_replace(array("\r\n", "\r", "\n"), "", $lines[$currentIndex]); // remove linebreaks
+					$subArray[$key] = $value;
 				}
-				$result[$currentFile] = $subArray;
 			}
+			$result[] = $subArray;
+			$worked = true;
 		}
 	}
 	
-	if(!empty($result)) $worked = true;
 	return $result;
 }
 
