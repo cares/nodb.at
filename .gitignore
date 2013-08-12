@@ -1,0 +1,6 @@
+# eclipse generated project setting file  #
+.*
+.project
+.settings
+*.log
+php_errors.log
