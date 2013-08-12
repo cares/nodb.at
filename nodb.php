@@ -647,10 +647,10 @@ function delete($index,$tableName = "",$dbName = "")
 /* ================= READ ================ */
 
 /* get one single record from table
- * 	// get mutliple records from a table read(array(0,1,2),$tableName,$dbname)
+  	// get mutliple records from a table read(array(0,1,2),$tableName,$dbname)
 	// 1. get a range of records "from a table read("0-3")"
 	// 2. get all records with name "jim" read(where("jim"));
- * */
+ */
 function read($index,$tableName = "",$dbname = "")
 {
 	$result = array();
