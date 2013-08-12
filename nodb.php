@@ -81,7 +81,6 @@ function renameDatabase($dboldname,$dbnewname)
 	global $absolute_path_to_database_root_folder; global $slash; global $lastDatabase; global $lastTable; global $lastColumn; global $default_accessRights; global $worked;
 	$worked = false;
 	if(empty($dboldname)) $dboldname = $lastDatabase;
-	if(empty($tableName)) $tableName = $lastTable;
 	if(empty($columnName)) $columnName = $lastColumn;
 	
 	$oldpath = $absolute_path_to_database_root_folder.$slash.$dboldname;
@@ -251,7 +250,12 @@ function delTable($tableName,$dbName = "")
 
 /* ================= COLUMN MANAGEMENT ================ */
 
-// addColumn($dbName = "",$tableName = "",$columnName); // effectively creates a file called "columname" inside tablename
+/* addColumn($dbName = "",$tableName = "",$columnName); 
+ * effectively creates a file called "columname" inside tablename
+ * 
+ * if there are allready columns inside the directory.
+ * fill up this column with as many lines (empty) as the others "synchronizing" them in terms of line-count
+ */
 $lastColumn = ""; // remember the last used/worked with column
 function addColumn($columnName,$tableName = "",$dbName = "",$accessRights = "")
 {
@@ -262,11 +266,48 @@ function addColumn($columnName,$tableName = "",$dbName = "",$accessRights = "")
 	if(empty($tableName)) $tableName = $lastTable;
 	if(empty($columnName)) $columnName = $lastColumn;
 	
-	$path = $absolute_path_to_database_root_folder.$slash.$dbName.$slash.$tableName.$slash.$columnName.".php";
+	$pathtable = $absolute_path_to_database_root_folder.$slash.$dbName.$slash.$tableName;
+	$path = $pathtable.$slash.$columnName.".php";
 	if(!is_file($path))
 	{
+		// are there other files in this dir
+		$files = ls($pathtable);
+		$fileCount = count($files);
+		
+		$first_columnFile = "";
+		if($fileCount > 0)
+		{
+			// get amount of lines of first file
+			$fileCount = count($files);
+			for($i = 0;$i < $fileCount;$i++)
+			{
+				$currentFile = $files[$i];
+				if(!(($currentFile == ".") || ($currentFile == "..")))
+				{
+					$first_columnFile = $currentFile;
+					break;
+				}
+			}
+		}
+		
+		$lineCount = 0;
+		if(!empty($first_columnFile))
+		{
+			$lines = file($pathtable.$slash.$first_columnFile);
+			$lineCount = count($lines);
+		}
+
 		touch($path,time());
 		chmod($path, $accessRights);
+		
+		if($lineCount > 0)
+		{
+			for($i = 0;$i < $lineCount;$i++)
+			{
+				file_put_contents($path, "\n", FILE_APPEND);
+			}
+		}
+		
 		$lastColumn = $columnName;
 		$lastTable = $tableName;
 		$lastDatabase = $dbName;
@@ -276,7 +317,8 @@ function addColumn($columnName,$tableName = "",$dbName = "",$accessRights = "")
 	{
 		trigger_error("error: can not create file ".$path." the file allready exists?");
 	}
-	$worked;
+	
+	return $worked;
 }
 
 // renameColumn($dbName = "",$tableName = "",$columnoldname = "",$columnnewname); // rename column-file
@@ -332,7 +374,7 @@ function delColumn($columnName,$tableName = "",$dbName = "")
 		trigger_error("error: can not delete ".$path." the file does not exists.");
 	}
 	
-	$worked;
+	return $worked;
 }
 
 /* ================= RECORD OPERATIONS ================ */
@@ -364,10 +406,10 @@ function add($columnName_values,$tableName = "",$dbName = "")
 		// iterate over files, compare filename to columnname, then insert value if available, else insert empty line
 		$fileCount = count($files);
 		for ($i = 0; $i < $fileCount; $i++) {
-			$file = $files[$i];
+			$currentFile = $files[$i];
 			if(!(($currentFile == ".") || ($currentFile == "..")))
 			{
-				$filename_without_ending = substr($file, 0, -4); // strip away .php
+				$filename_without_ending = substr($currentFile, 0, -4); // strip away .php
 	
 				// iterate over $columns and check if such columnname:value exists
 				$columnsCount = count($columns);
@@ -376,10 +418,10 @@ function add($columnName_values,$tableName = "",$dbName = "")
 					$key_value = explode(":",$columns[$j]);
 					$key = $key_value[0];
 					$value = $key_value[1];
+					$path = $pathtable.$slash.$filename_without_ending.".php";
 					if($filename_without_ending == $key)
 					{
 						$found = true;
-						$path = $pathtable.$slash.$key.".php";
 						break;
 					}
 				}
@@ -435,10 +477,10 @@ function insert($index,$columnName_values,$tableName = "",$dbName = "")
 		// iterate over files, compare filename to columnname, then insert value if available, else insert empty line
 		$fileCount = count($files);
 		for ($i = 0; $i < $fileCount; $i++) {
-			$file = $files[$i];
+			$currentFile = $files[$i];
 			if(!(($currentFile == ".") || ($currentFile == "..")))
 			{
-				$filename_without_ending = substr($file, 0, -4); // strip away .php
+				$filename_without_ending = substr($currentFile, 0, -4); // strip away .php
 	
 				// iterate over $columns and check if such columnname:value exists
 				$columnsCount = count($columns);
@@ -582,7 +624,7 @@ function delete($index,$tableName = "",$dbName = "")
 
 	$path2table = $absolute_path_to_database_root_folder.$slash.$dbName.$slash.$tableName;
 	
-	if(is_int($index)||is_array($index))
+	if(is_int($index)||is_array($index)||is_string($index))
 	{
 		// get all files of the given table
 		$files = ls($path2table);
@@ -593,7 +635,6 @@ function delete($index,$tableName = "",$dbName = "")
 		{
 			$currentFile = $files[$x];
 			$path2column = $path2table.$slash.$currentFile;
-
 			
 			if(!(($currentFile == ".") || ($currentFile == "..")))
 			{
@@ -611,18 +652,32 @@ function delete($index,$tableName = "",$dbName = "")
 						$lastColumn = $columnName;
 						$worked = true;
 					}
-					else if(is_array($index))
+					else if(is_array($index)||is_string($index))
 					{
-						$indexCount = count($index);
-						for($i = 0;$i < $indexCount;$i++)
+						if(is_array($index))
+						{
+							$start = 0;
+							$stop = count($index);
+						}
+						else if(is_string($index))
+						{
+							$index_start_stop = split("-",$index);
+							$start = $index_start_stop[0];
+							$stop = $index_start_stop[1];
+							$stop++; // giving "0-2" the following loop would delete line 0,1 but not line 2
+						}
+
+						// iterate over indices
+						for($i = $start;$i < $stop;$i++)
 						{
 							$currentIndex = $index[$i];
-							$lines[$index[$i]] = ""; // change specified elements to null
+							$lines[$i] = ""; // change specified elements to null
 						}
+
 						$lines = array_filter( $lines, 'strlen' ); // delete all elements with null
 						$lines = array_values($lines); // reindex array
 						file_put_contents($path2column,implode($lines)); // write back to file
-						
+							
 						$lastDatabase = $dbName;
 						$lastTable = $tableName;
 						$lastColumn = $columnName;
@@ -647,11 +702,11 @@ function delete($index,$tableName = "",$dbName = "")
 /* ================= READ ================ */
 
 /* get one single record from table
-  	// get mutliple records from a table read(array(0,1,2),$tableName,$dbname)
+  	// get mutliple records from a table read(array(0,1,2),$tableName,$dbName)
 	// 1. get a range of records "from a table read("0-3")"
 	// 2. get all records with name "jim" read(where("jim"));
  */
-function read($index,$tableName = "",$dbname = "")
+function read($index,$tableName = "",$dbName = "")
 {
 	$result = array();
 
@@ -667,7 +722,7 @@ function read($index,$tableName = "",$dbname = "")
 	$files = ls($path_to_table);
 	$fileCount = count($files);
 
-	// 0. get one record from a table read(0,$tableName,$dbname)
+	// 0. get one record from a table read(0,$tableName,$dbName)
 	if(is_int($index))
 	{
 		for($i = 0;$i < $fileCount;$i++)
@@ -682,7 +737,7 @@ function read($index,$tableName = "",$dbname = "")
 			}
 		}
 	}
-	// 1. get mutliple records from a table read(array(0,1,2),$tableName,$dbname)
+	// 1. get mutliple records from a table read(array(0,1,2),$tableName,$dbName)
 	// 3. get all records where name == 'jim' read(where('jim'));"
 	if(is_array($index))
 	{
@@ -740,18 +795,102 @@ function read($index,$tableName = "",$dbname = "")
 		}
 	}
 	
+	if(!empty($result)) $worked = true;
+	
 	return $result;
 }
 
 /* get all records from a table, top-array-keys represent the columns */
-function readTable($tableName = "",$dbname = "")
+function readTable($tableName = "",$dbName = "")
 {
+	$result = array();
 
+	global $absolute_path_to_database_root_folder; global $slash; global $lastDatabase; global $lastTable; global $lastColumn; global $default_accessRights; global $worked;
+	$worked = false;
+	if(empty($accessRights)) $accessRights = $default_accessRights;
+	if(empty($dbName)) $dbName = $lastDatabase;
+	if(empty($tableName)) $tableName = $lastTable;
+	if(empty($columnName)) $columnName = $lastColumn;
+
+	$path_to_table = $absolute_path_to_database_root_folder.$slash.$dbName.$slash.$tableName;
+
+	$files = ls($path_to_table);
+	$fileCount = count($files);
+	$allFiles = array();
+
+	if(is_dir($path_to_table))
+	{
+		for($i = 0;$i < $fileCount;$i++)
+		{
+			$currentFile = $files[$i];
+			if(!(($currentFile == ".") || ($currentFile == "..")))
+			{
+				$key = substr($currentFile, 0, -4); // strip away .php
+				$allFiles[$key] = file($path_to_table.$slash.$currentFile);
+			}
+		}
+	}
+
+	reset($allFiles);
+	$first_key = key($allFiles);
+	$lines = $allFiles[$first_key];
+	$linesCount = count($lines);
+
+	// iterate over indices
+	for($j = 0;$j < $linesCount;$j++)
+	{
+		$currentIndex = $j;
+		$subArray = array();
+
+		// iterate over files/columns
+		$line = array();
+		foreach ($allFiles as $key => $lines)
+		{
+			$value = str_replace(array("\r\n", "\r", "\n"), "", $lines[$j]); // remove linebreaks
+			$line[$key] = $value;
+		}
+		$result[] = $line;
+		$worked = true;
+	}
+
+	return $result;
 }
 /* get whole database as a object-array with sub arrays */
-function readDatabase($dbname = "")
+function readDatabase($dbName = "")
 {
+	$result = array();
 
+	global $absolute_path_to_database_root_folder; global $slash; global $lastDatabase; global $lastTable; global $lastColumn; global $default_accessRights; global $worked;
+	$worked = false;
+	if(empty($accessRights)) $accessRights = $default_accessRights;
+	if(empty($dbName)) $dbName = $lastDatabase;
+	if(empty($tableName)) $tableName = $lastTable;
+	if(empty($columnName)) $columnName = $lastColumn;
+
+	$path_to_database = $absolute_path_to_database_root_folder.$slash.$dbName;
+
+	$tableDirs = ls($path_to_database);
+	$tableDirCount = count($tableDirs);
+
+	for($i = 0;$i < $tableDirCount;$i++)
+	{
+		$current_tableDir = $tableDirs[$i];
+		if(!(($current_tableDir == ".") || ($current_tableDir == "..")))
+		{
+			$path = $path_to_database.$slash.$current_tableDir;
+			if(is_dir($path))
+			{
+				$result[$current_tableDir] = readTable($current_tableDir,$dbName);
+				$worked = true;
+			}
+			else
+			{
+				trigger_error("error: can access ".$path." does it exist?");
+			}
+		}
+	}
+
+	return $result;
 }
 /* ================= SEARCH ================ */
 

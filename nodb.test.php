@@ -4,10 +4,6 @@ echo "<hr><h1 color='red'>test nodb database management commands</h1><br>";
 include("nodb.php");
 
 echo "<hr><h1 color='red'>test database commands</h1><br>";
-comment("delete database");
-success(delDatabase("databaseTest1"));
-success(delDatabase("databaseTest2"));
-
 comment("create database");
 success(addDatabase("databaseTest1",$accessRights));
 
@@ -82,7 +78,7 @@ success(change(where("jill","name"),"name:joe;phone:+999999;"));
 echo "<hr><h1 color='red'>try read commands</h1><br>";
 
 comment("get one single record from table");
-print_r_html(read(0,$tableName,$dbname));
+print_r_html(read(0));
 success($worked);
 
 comment("get one mutliple record from a table");
@@ -98,16 +94,42 @@ print_r_html(read(where('jim','name')));
 success($worked);
 
 comment("get all records from a table, top-array-keys represent the columns");
-print_r_html(readTable("name"));
+print_r_html(readTable("testTable1"));
 success($worked);
 
+/* CREATE MORE DATA */
+addTable("testTable2","databaseTest1",$accessRights);
+addColumn("name");
+addColumn("street");
+addColumn("phone");
+addColumn("mail");
+$name = "tom";
+add("name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;");
+$name = "jerry";
+add("name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;");
+addColumn("columnTest2");
+$name = "tom";
+add("name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;");
+$name = "jerry";
+add("name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;");
+addColumn("columnTest3");
+$name = "tom";
+add("name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;");
+$name = "jerry";
+add("name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;");
+/* CREATE MORE DATA FINISHED */
+
 comment("get whole database as a object-array with sub arrays");
-print_r_html(readDatabase());
+$result = readDatabase();
+print_r_html($result);
 success($worked);
+
+comment("add column to table where columns have content (needs to be all same linecount = insync)");
+addColumn("test","testTable1","databaseTest1");
 
 echo "<hr><h1 color='red'>try delete commands</h1><br>";
 
-comment("try to delete with problematic index");
+comment("try to delete with problematic index, you should see an error following:");
 success(delete(null));
 
 comment("delete one record");
@@ -116,17 +138,27 @@ success(delete(0));
 comment("delete multiple records");
 success(delete(array(0,1,2)));
 
+comment("add record at end (no lineNumber given)");
+$name = "tom";
+success(add("name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;"));
+$name = "jerry";
+success(add("name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;"));
+
+comment("delete range of records");
+success(delete(("0-2")));
+
 echo "<hr><h1 color='red'>import / export commands</h1><br>";
 
 // importMySQL($mysqldumb); // parses the mysqldumb and tries to create a file-based database
 
-// exportMySQL($dbname); // tries to create a MySQL-dumb of the file-based-database
+// exportMySQL($dbName); // tries to create a MySQL-dumb of the file-based-database
 
 echo "<hr><h1 color='red'>DESTROY TEST DATABASE</h1><br>";
 
 comment("delete database");
 success(delDatabase("databaseTest1"));
 
+/*
 echo "<hr><h1 color='red'>test file operations command 'ls'</h1><br>";
 
 comment("read parent directory");
@@ -159,6 +191,7 @@ print_r_html(ls(".",$sort));
 comment("5 = SORT_FLAG_CASE -");
 $sort = SORT_FLAG_CASE;
 print_r_html(ls(".",$sort));
+*/
 
 /* print an array or variable like print_r would do it but with browser readable <br> instead of \n linebreaks */
 function print_r_html($input)
