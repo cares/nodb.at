@@ -2,6 +2,8 @@
 $absolute_path_to_database_root_folder = "./databases"; // assume there is a folder called database in the current working directory
 $slash = "/"; // windows_or_linux slash? linux slash is / windows slash is \
 $default_accessRights = 0700; // the access rights, (chmod 0700) that folders and files will have per default when they are created and no access rights are specified
+$settings_log_errors = "nodb.error.log"; // if errors should be logged to file, if not leave this empty
+$settings_log_operations = "nodb.operations.log"; // if there should be a line written for every operation done (so you may be able to track problems)
 
 $worked = false; // is an variable that returns the success of the last operation, e.g. if a directory or file is not found it will be set to false
 
@@ -37,8 +39,11 @@ function addDatabase($dbName,$accessRights = "")
 	}
 	else
 	{
-		trigger_error("error: can not create ".$path." the directory exists allready.");
+		error("error: can not create ".$path." the directory exists allready.");
 	}
+	
+	operation("database ".$dbName." with accessrights ".$accessRights." added.");
+	
 	return $worked;
 }
 
@@ -64,13 +69,15 @@ function copyDatabase($dbNameSource, $dbNameDestination)
 		}
 		else
 		{
-			trigger_error("error: can not copy ".$dbNameDestination." to ".$dbNameSource." the directory ".$dbNameDestination." does not exists.");
+			error("error: can not copy ".$dbNameDestination." to ".$dbNameSource." the directory ".$dbNameDestination." does not exists.");
 		}
 	}
 	else
 	{
-		trigger_error("error: can not copy ".$dbNameSource." the directory does not exists?");
+		error("error: can not copy ".$dbNameSource." the directory does not exists?");
 	}
+	
+	operation("copied database from ".$dbNameSource." to ".$dbNameDestination."");
 
 	return $worked;
 }
@@ -95,13 +102,15 @@ function renameDatabase($dboldname,$dbnewname)
 		}
 		else
 		{
-			trigger_error("error: can not rename ".$oldpath." to ".$newpath." the directory exists allready.");
+			error("error: can not rename ".$oldpath." to ".$newpath." the directory exists allready.");
 		}
 	}
 	else
 	{
-		trigger_error("error: can not rename ".$oldpath." the directory does not exists?");
+		error("error: can not rename ".$oldpath." the directory does not exists?");
 	}
+	
+	operation("renameDatabase \$dboldname ".$dboldname." \$dbnewname ".$dbnewname."");
 	
 	return $worked;
 }
@@ -124,8 +133,10 @@ function delDatabase($dbName)
 	}
 	else
 	{
-		trigger_error("error: can not delete ".$path." the directory does not exists.");
+		error("error: can not delete ".$path." the directory does not exists.");
 	}
+	
+	operation("delDatabase ".$dbName);
 	
 	return $worked;
 }
@@ -153,9 +164,11 @@ function addTable($tableName,$dbName = "",$accessRights = "")
 	}
 	else
 	{
-		trigger_error("error: can not create table-directory ".$path." the directory exists allready.");
+		error("error: can not create table-directory ".$path." the directory exists allready.");
 	}
-	
+
+	operation("addTable ".$tableName." to database ".$dbName." with accessRights ".$accessRights);
+
 	return $worked;
 }
 
@@ -180,14 +193,16 @@ function copyTable($tableNameSource, $tableNameDestination, $dbName = "")
 		}
 		else
 		{
-			trigger_error("error: can not copy ".$pathsourceource.", destination ".$pathdestination." does not exists.");
+			error("error: can not copy ".$pathsourceource.", destination ".$pathdestination." does not exists.");
 		}
 	}
 	else
 	{
-		trigger_error("error: can not copy directory ".$pathsourceource.", it does not exists?");
+		error("error: can not copy directory ".$pathsourceource.", it does not exists?");
 	}
 
+	operation("copyTable ".$dbName."->".$tableNameSource." to ".$dbName."->".$tableNameDestination);
+	
 	return $worked;
 }
 
@@ -212,13 +227,15 @@ function renameTable($tableoldname,$tablenewname,$dbName = "")
 		}
 		else
 		{
-			trigger_error("error: can not rename ".$oldpath." to ".$newpath." the directory exists allready.");
+			error("error: can not rename ".$oldpath." to ".$newpath." the directory exists allready.");
 		}
 	}
 	else
 	{
-		trigger_error("error: can not rename ".$oldpath." does not exists?");
+		error("error: can not rename ".$oldpath." does not exists?");
 	}
+
+	operation("renameTable ".$dbName."->".$tableoldname." to ".$dbName."->".$tablenewname);
 	
 	return $worked;
 }
@@ -242,8 +259,10 @@ function delTable($tableName,$dbName = "")
 	}
 	else
 	{
-		trigger_error("error: can not delete ".$path." the directory does not exists.");
+		error("error: can not delete ".$path." the directory does not exists.");
 	}
+	
+	operation("delTable ".$dbName."->".$tableName);
 	
 	return $worked;
 }
@@ -315,8 +334,10 @@ function addColumn($columnName,$tableName = "",$dbName = "",$accessRights = "")
 	}
 	else
 	{
-		trigger_error("error: can not create file ".$path." the file allready exists?");
+		error("error: can not create file ".$path." the file allready exists?");
 	}
+	
+	operation("addColumn ".$dbName."->".$tableName."->".$columnName." with accessRights ".$accessRights);
 	
 	return $worked;
 }
@@ -342,13 +363,15 @@ function renameColumn($columnoldname,$columnnewname = "",$tableName = "",$dbName
 		}
 		else
 		{
-			trigger_error("error: can not rename ".$oldpath." to ".$newpath." the file exists allready?");
+			error("error: can not rename ".$oldpath." to ".$newpath." the file exists allready?");
 		}
 	}
 	else
 	{
-		trigger_error("error: can not rename ".$oldpath." the file does not exists?");
+		error("error: can not rename ".$oldpath." the file does not exists?");
 	}
+	
+	operation("renameColumn ".$dbName."->".$tableName."->".$columnoldname." to ".$columnnewname);
 	
 	return $worked;
 }
@@ -371,8 +394,10 @@ function delColumn($columnName,$tableName = "",$dbName = "")
 	}
 	else
 	{
-		trigger_error("error: can not delete ".$path." the file does not exists.");
+		error("error: can not delete ".$path." the file does not exists.");
 	}
+	
+	operation("delColumn ".$dbName."->".$tableName."->".$columnName);
 	
 	return $worked;
 }
@@ -445,9 +470,11 @@ function add($columnName_values,$tableName = "",$dbName = "")
 	}
 	else
 	{
-		trigger_error("error: can not add to table ".$pathtable." the path does not exist?");
+		error("error: can not add to table ".$pathtable." the path does not exist?");
 	}
 
+	operation("added record ".$columnName_values." to ".$dbName."->".$tableName."->".$columnName_values);
+	
 	return $worked;
 }
 
@@ -516,8 +543,10 @@ function insert($index,$columnName_values,$tableName = "",$dbName = "")
 	}
 	else
 	{
-		trigger_error("error: can not add to table ".$pathtable." the path does not exist?");
+		error("error: can not add to table ".$pathtable." the path does not exist?");
 	}
+	
+	operation("insert ".$dbName."->".$tableName."->".$tableName." at line ".$index." this data ".$columnName_values);
 
 	return $worked;
 }
@@ -594,20 +623,22 @@ function change($index,$columnName_values,$tableName = "",$dbName = "")
 				}
 				else
 				{
-					trigger_error("function change(): can not change column-file ".$path_to_file." of table ".$pathtable." does it exist?");
+					error("function change(): can not change column-file ".$path_to_file." of table ".$pathtable." does it exist?");
 				}
 			}
 		}
 		else
 		{
-			trigger_error("function change(): can not change column-file in directory ".$pathtable." does it exist?");
+			error("function change(): can not change column-file in directory ".$pathtable." does it exist?");
 		}
 	}
 	else
 	{
-		trigger_error("function change(): there is somehting wrong with the \$index=".$index." given.");
+		error("function change(): there is somehting wrong with the \$index=".$index." given.");
 	}
 
+	operation("change ".$dbName."->".$tableName."->".$tableName." at line ".$index." to this data ".$columnName_values);
+	
 	return $worked;
 }
 
@@ -686,15 +717,17 @@ function delete($index,$tableName = "",$dbName = "")
 				}
 				else
 				{
-					trigger_error("function delete(): can not delete records in file-column ".$path2column." does it exist?");
+					error("function delete(): can not delete records in file-column ".$path2column." does it exist?");
 				}
 			}
 		}
 	}
 	else
 	{
-		trigger_error("function delete(): can not delete record, there is something wrong with the \$index:".$index." given");
+		error("function delete(): can not delete record, there is something wrong with the \$index:".$index." given");
 	}
+	
+	operation("delete \$index ".$index." \$tableName ".$tableName." \$dbName ".$dbName);
 
 	return $worked;
 }
@@ -797,6 +830,8 @@ function read($index,$tableName = "",$dbName = "")
 	
 	if(!empty($result)) $worked = true;
 	
+	operation("read line ".$index." of ".$dbName."->".$tableName);
+	
 	return $result;
 }
 
@@ -852,6 +887,8 @@ function readTable($tableName = "",$dbName = "")
 		$result[] = $line;
 		$worked = true;
 	}
+	
+	operation("readTable ".$dbName."->".$tableName);
 
 	return $result;
 }
@@ -885,10 +922,12 @@ function readDatabase($dbName = "")
 			}
 			else
 			{
-				trigger_error("error: can access ".$path." does it exist?");
+				error("error: can access ".$path." does it exist?");
 			}
 		}
 	}
+	
+	operation("readDatabase ".$dbName);
 
 	return $result;
 }
@@ -901,6 +940,8 @@ function readDatabase($dbName = "")
 function searchTable($searchFor,$tableName = "",$dbName = "")
 {
 	$result = array();
+	
+	operation("searchTable \$searchFor ".$searchFor." \$tableName ".$tableName." \$dbName ".$dbName);
 }
 /* search all columns, return array of format:
  * $result[column1] = {1,2,3};
@@ -909,6 +950,8 @@ function searchTable($searchFor,$tableName = "",$dbName = "")
 function searchDatabase($searchFor,$dbName = "")
 {
 	$result = array();
+	
+	operation("searchDatabase \$searchFor ".$searchFor." \$dbName ".$dbName);
 }
 
 /* return all line numbers that contain the given string */
@@ -940,9 +983,11 @@ function where($searchFor,$columnName = "",$tableName = "",$dbName = "")
 	}
 	else
 	{
-		trigger_error("error: can not search column-file ".$path." the file does not exist?");
+		error("error: can not search column-file ".$path." the file does not exist?");
 	}
-	
+
+	operation("where \$searchFor ".$searchFor." \$columnName ".$columnName." \$tableName ".$tableName." $dbName ".$dbName);
+
 	return $result;
 }
 
@@ -956,7 +1001,9 @@ function where($searchFor,$columnName = "",$tableName = "",$dbName = "")
 // exportMySQL($dbName); // tries to create a MySQL-dumb of the file-based-database
 
 
-/* ================= LIBRARY ================ */
+/* ================= LIBRARY ================
+ * don't call these functions directly unless you know what you do.
+ * these functions are used by the above functons. */
 /* $lineNumber = 1; // lineNumber at which the content will be inserted */
 function insertLineAt($lineNumber,$line,$path)
 {
@@ -1020,5 +1067,31 @@ function rmdir_recursive($dir) {
 			unlink ( "$dir/$file" );
 	}
 	rmdir ( $dir );
+}
+
+/* outputs a warning and if $settings_log_errors == true, outputs to error.log */
+function error($message)
+{
+	trigger_error($message);
+
+	global $settings_log_errors;
+	if(!empty($settings_log_errors)){
+		log2file($settings_log_errors,$message);
+	}
+}
+
+/* outputs a warning and if $settings_log_errors == true, outputs to error.log */
+function operation($operation)
+{
+	global $settings_log_operations;
+	if(!empty($settings_log_operations)){
+		log2file($settings_log_operations,$operation);
+	}
+}
+
+/* write the error to a log file */
+function log2file($file,$this)
+{
+	file_put_contents(time().": ".$file, $this."\n", FILE_APPEND);
 }
 ?>

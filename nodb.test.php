@@ -1,7 +1,7 @@
 <?php
 $accessRights = 0770; // create databases/files/tables with these accessrights 
 echo "<hr><h1 color='red'>test nodb database management commands</h1><br>";
-include("nodb.php");
+require_once("nodb.php");
 
 echo "<hr><h1 color='red'>test database commands</h1><br>";
 comment("create database");
