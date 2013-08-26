@@ -1092,6 +1092,6 @@ function operation($operation)
 /* write the error to a log file */
 function log2file($file,$this)
 {
-	file_put_contents(time().": ".$file, $this."\n", FILE_APPEND);
+	file_put_contents($file, time().": ".$this."\n", FILE_APPEND);
 }
 ?>
