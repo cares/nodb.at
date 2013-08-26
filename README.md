@@ -1,5 +1,15 @@
 # ==== nodb.at ====
 
+# === features: ===
++ remembers the last used database/table
++ ASAP simple folder/file based system
++ error and operation/process logging
++ tested quality
+
+check out nodb.test.php for examples.
+
+# ==== about ====
+
 file and directory based php database
 
 is my own implementation of a file-based database for php. ASAP - as simple as possible
@@ -83,8 +93,8 @@ value5
 
 # ==== TODO ====
 
-o implement all the functions
+ok implement all the functions
 
-o build a nodbmyadmin.php that like phpmyadmin let you easily modify the database.
+ok build a nodbmyadmin.php that like phpmyadmin let you easily modify the database.
 
-o remember the last used database and table and make all following operations on them
+ok remember the last used database and table and make all following operations on them
