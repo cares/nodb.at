@@ -1,4 +1,5 @@
 <?php
+/* nodb procedural style */
 $absolute_path_to_database_root_folder = "./databases"; // assume there is a folder called database in the current working directory
 $slash = "/"; // windows_or_linux slash? linux slash is / windows slash is \
 $default_accessRights = 0700; // the access rights, (chmod 0700) that folders and files will have per default when they are created and no access rights are specified
@@ -26,23 +27,26 @@ function addDatabase($dbName,$accessRights = "")
 	global $absolute_path_to_database_root_folder; global $slash; global $lastDatabase; global $lastTable; global $lastColumn; global $default_accessRights; global $worked;
 	$worked = false;
 	if(empty($accessRights)) $accessRights = $default_accessRights;
-	if(empty($dbName)) $dbName = $lastDatabase;
-	if(empty($tableName)) $tableName = $lastTable;
-	if(empty($columnName)) $columnName = $lastColumn;
-	
-	$path = $absolute_path_to_database_root_folder.$slash.$dbName;
-	if(!is_dir($dbName))
+
+	if(empty($dbName))
 	{
-		mkdir($path,$accessRights);
-		$lastDatabase = $dbName;
-		$worked = true;
+		error("error: no databaseName given.");
 	}
 	else
 	{
-		error("error: can not create ".$path." the directory exists allready.");
+		$path = $absolute_path_to_database_root_folder.$slash.$dbName;
+		if(!is_dir($dbName))
+		{
+			mkdir($path,$accessRights);
+			$lastDatabase = $dbName;
+			$worked = true;
+			operation("database ".$dbName." with accessrights ".$accessRights." added.");
+		}
+		else
+		{
+			error("error: can not create ".$path." the directory exists allready.");
+		}
 	}
-	
-	operation("database ".$dbName." with accessrights ".$accessRights." added.");
 	
 	return $worked;
 }
@@ -52,32 +56,40 @@ function copyDatabase($dbNameSource, $dbNameDestination)
 {
 	global $absolute_path_to_database_root_folder; global $slash; global $lastDatabase; global $lastTable; global $lastColumn; global $default_accessRights; global $worked;
 	$worked = false;
-	if(empty($dbNameSource)) $dbNameSource = $lastDatabase;
 	$lastlastDatabase = $dbNameDestination;
-	if(empty($tableName)) $tableName = $lastTable;
-	if(empty($columnName)) $columnName = $lastColumn;
 
-	$dbNameSource = $absolute_path_to_database_root_folder.$slash.$dbNameSource;
-	$dbNameDestination = $absolute_path_to_database_root_folder.$slash.$dbNameDestination;
-	if(is_dir($dbNameSource))
+	if(empty($dbNameSource))
 	{
-		if(!is_dir($dbNameDestination))
-		{
-			recurse_copy($dbNameSource,$dbNameDestination);
-			$lastDatabase = $lastlastDatabase;
-			$worked = true;
-		}
-		else
-		{
-			error("error: can not copy ".$dbNameDestination." to ".$dbNameSource." the directory ".$dbNameDestination." does not exists.");
-		}
+		error("error: no databse to copy given (\$dbNameSource is empty)");
+	}
+	else if(empty($dbNameDestination))
+	{
+		error("error: no destination given, don't know where to copy the database. (\$dbNameDestination is empty)");
 	}
 	else
 	{
-		error("error: can not copy ".$dbNameSource." the directory does not exists?");
+		$dbNameSource = $absolute_path_to_database_root_folder.$slash.$dbNameSource;
+		$dbNameDestination = $absolute_path_to_database_root_folder.$slash.$dbNameDestination;
+		if(is_dir($dbNameSource))
+		{
+			if(!is_dir($dbNameDestination))
+			{
+				recurse_copy($dbNameSource,$dbNameDestination);
+				$lastDatabase = $lastlastDatabase;
+				$worked = true;
+			}
+			else
+			{
+				error("error: can not copy ".$dbNameDestination." to ".$dbNameSource." the directory ".$dbNameDestination." does not exists.");
+			}
+		}
+		else
+		{
+			error("error: can not copy ".$dbNameSource." the directory does not exists?");
+		}
+		
+		operation("copied database from ".$dbNameSource." to ".$dbNameDestination."");
 	}
-	
-	operation("copied database from ".$dbNameSource." to ".$dbNameDestination."");
 
 	return $worked;
 }
@@ -546,7 +558,7 @@ function insert($index,$columnName_values,$tableName = "",$dbName = "")
 		error("error: can not add to table ".$pathtable." the path does not exist?");
 	}
 	
-	operation("insert ".$dbName."->".$tableName."->".$tableName." at line ".$index." this data ".$columnName_values);
+	operation("insert ".$dbName."->".$tableName."->".$tableName." at line ".array2string($index)." this data ".$columnName_values);
 
 	return $worked;
 }
@@ -634,10 +646,10 @@ function change($index,$columnName_values,$tableName = "",$dbName = "")
 	}
 	else
 	{
-		error("function change(): there is somehting wrong with the \$index=".$index." given.");
+		error("function change(): there is somehting wrong with the \$index=".array2string($index)." given.");
 	}
 
-	operation("change ".$dbName."->".$tableName."->".$tableName." at line ".$index." to this data ".$columnName_values);
+	operation("change ".$dbName."->".$tableName."->".$tableName." at line ".array2string($index)." to this data ".$columnName_values);
 	
 	return $worked;
 }
@@ -724,10 +736,10 @@ function delete($index,$tableName = "",$dbName = "")
 	}
 	else
 	{
-		error("function delete(): can not delete record, there is something wrong with the \$index:".$index." given");
+		error("function delete(): can not delete record, there is something wrong with the \$index:".array2string($index)." given");
 	}
 	
-	operation("delete \$index ".$index." \$tableName ".$tableName." \$dbName ".$dbName);
+	operation("delete \$index ".array2string($index)." \$tableName ".$tableName." \$dbName ".$dbName);
 
 	return $worked;
 }
@@ -829,8 +841,8 @@ function read($index,$tableName = "",$dbName = "")
 	}
 	
 	if(!empty($result)) $worked = true;
-	
-	operation("read line ".$index." of ".$dbName."->".$tableName);
+
+	operation("read line ".array2string($index)." of ".$dbName."->".$tableName);
 	
 	return $result;
 }
@@ -1072,6 +1084,8 @@ function rmdir_recursive($dir) {
 /* outputs a warning and if $settings_log_errors == true, outputs to error.log */
 function error($message)
 {
+	global $worked;
+	$worked = false;
 	trigger_error($message);
 
 	global $settings_log_errors;
@@ -1093,5 +1107,18 @@ function operation($operation)
 function log2file($file,$this)
 {
 	file_put_contents($file, time().": ".$this."\n", FILE_APPEND);
+}
+
+/* convert array2string, if it's no array, return original */ 
+function array2string($array)
+{
+	if(is_array($array))
+	{
+		return implode(",", $array);
+	}
+	else
+	{
+		return $array;
+	}
 }
 ?>
