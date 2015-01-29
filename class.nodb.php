@@ -3,6 +3,35 @@
 class nodb {
 	
 	/* massive amounts of getters and setters */
+	public $logging = true; // if there should be error and operation logging
+	public function getlogging() {
+		return $this->logging;
+	}
+
+	public function setlogging($logging) {
+		$this->logging = $logging;
+		
+		if($logging)
+		{
+			$this->settings_log_errors = "nodb.error.log";
+			$this->settings_log_operations = "nodb.operations.log";
+		}
+		else
+		{
+			$this->settings_log_errors = "";
+			$this->settings_log_operations = "";
+		}
+	}
+
+	public $warnings = true; // if you want to get a warning e.g. when you try to create a database that allready exists or writing to a table that does not exist
+	public function getwarnings() {
+		return $this->warnings;
+	}
+	
+	public function setwarnings($warnings) {
+		$this->warnings = $warnings;
+	}
+
 	public $absolute_path_to_database_root_folder = "./databases"; // assume there is a folder called database in the current working directory
 	public function getAbsolute_path_to_database_root_folder() {
 		return $this->absolute_path_to_database_root_folder;
@@ -1203,18 +1232,27 @@ class nodb {
 	public function error($message)
 	{
 		$this->worked = false;
-		trigger_error($message);
-	
-		if(!empty($this->settings_log_errors)){
-			$this->log2file($this->settings_log_errors,$message);
+		if($this->warnings)
+		{
+			trigger_error($message);
+		}
+		
+		if($this->logging)
+		{
+			if(!empty($this->settings_log_errors)){
+				$this->log2file($this->settings_log_errors,$message);
+			}
 		}
 	}
 	
 	/* outputs a warning and if $settings_log_errors == true, outputs to error.log */
 	public function operation($operation)
 	{
-		if(!empty($this->settings_log_operations)){
-			$this->log2file($this->settings_log_operations,$operation);
+		if($this->logging)
+		{
+			if(!empty($this->settings_log_operations)){
+				$this->log2file($this->settings_log_operations,$operation);
+			}
 		}
 	}
 	
