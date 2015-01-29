@@ -50,13 +50,13 @@ class nodb {
 		$this->slash = $slash;
 	}
 
-	public $default_accessRights = 0700; // the access rights, (chmod 0700) that folders and files will have per default when they are created and no access rights are specified
-	public function getDefault_accessRights() {
-		return $this->default_accessRights;
+	public $accessRights = 0700; // the access rights, (chmod 0700) that folders and files will have per default when they are created and no access rights are specified
+	public function getaccessRights() {
+		return $this->accessRights;
 	}
 	
-	public function setDefault_accessRights($default_accessRights) {
-		$this->default_accessRights = $default_accessRights;
+	public function setaccessRights($accessRights) {
+		$this->accessRights = $accessRights;
 	}
 
 	public $settings_log_errors = "nodb.error.log"; // if errors should be logged to file, if not leave this empty
@@ -136,8 +136,7 @@ class nodb {
 		// if the database_root_folder does not exist create it now
 		if(!is_dir($this->absolute_path_to_database_root_folder))
 		{
-			if(!is_long($accessRights)) $accessRights = $this->default_accessRights;
-			mkdir($this->absolute_path_to_database_root_folder,$accessRights); // grant only current user access to this folder
+			mkdir($this->absolute_path_to_database_root_folder,$this->accessRights); // grant only current user access to this folder
 		}
 	}
 	
@@ -148,7 +147,7 @@ class nodb {
 	public function addDatabase($dbName,$accessRights = "")
 	{
 		$this->worked = false;
-		if(empty($accessRights)) $accessRights = $this->default_accessRights;
+		if(empty($accessRights)) $accessRights = $this->accessRights;
 		if(empty($dbName))
 		{
 			$this->error("error: no databaseName given.");
@@ -287,7 +286,7 @@ class nodb {
 		$this->worked = false;
 		if(empty($dbName)) $dbName = $this->lastDatabase;
 		if(empty($tableName)) $tableName = $this->lastTable;
-		if(empty($accessRights)) $accessRights = $this->default_accessRights;
+		if(empty($accessRights)) $accessRights = $this->accessRights;
 	
 		$path = $this->absolute_path_to_database_root_folder.$this->slash.$dbName.$this->slash.$tableName;
 		if(!is_dir($path))
@@ -417,7 +416,7 @@ class nodb {
 	public function addColumn($columnName,$tableName = "",$dbName = "",$accessRights = "")
 	{
 		$this->worked = false;
-		if(empty($accessRights)) $accessRights = $this->default_accessRights;
+		if(empty($accessRights)) $accessRights = $this->accessRights;
 		if(empty($dbName)) $dbName = $this->lastDatabase;
 		if(empty($tableName)) $tableName = $this->lastTable;
 		if(empty($columnName)) $columnName = $this->lastColumn;
@@ -872,7 +871,7 @@ class nodb {
 		$result = array();
 	
 		$this->worked = false;
-		if(empty($accessRights)) $accessRights = $this->default_accessRights;
+		if(empty($accessRights)) $accessRights = $this->accessRights;
 		if(empty($dbName)) $dbName = $this->lastDatabase;
 		if(empty($tableName)) $tableName = $this->lastTable;
 		if(empty($columnName)) $columnName = $this->lastColumn;
@@ -968,7 +967,7 @@ class nodb {
 		$result = array();
 	
 		$this->worked = false;
-		if(empty($accessRights)) $accessRights = $this->default_accessRights;
+		if(empty($accessRights)) $accessRights = $this->accessRights;
 		if(empty($dbName)) $dbName = $this->lastDatabase;
 		if(empty($tableName)) $tableName = $this->lastTable;
 		if(empty($columnName)) $columnName = $this->lastColumn;
@@ -1024,7 +1023,7 @@ class nodb {
 		$result = array();
 	
 		$this->worked = false;
-		if(empty($accessRights)) $accessRights = $this->default_accessRights;
+		if(empty($accessRights)) $accessRights = $this->accessRights;
 		if(empty($dbName)) $dbName = $this->lastDatabase;
 		if(empty($tableName)) $tableName = $this->lastTable;
 		if(empty($columnName)) $columnName = $this->lastColumn;
