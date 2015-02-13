@@ -1,5 +1,5 @@
 <?php
-/* nodb object oriented class style */
+/* nodb "engine" in oop-style (class->object) */
 class nodb {
 	
 	/* massive amounts of getters and setters */

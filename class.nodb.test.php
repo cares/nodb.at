@@ -1,4 +1,7 @@
 <?php
+/* 1. upload this file to your webserver together with class.nodb.php and time.php
+ * 2. run it with webbrowser
+ */
 $accessRights = 0770; // create databases/files/tables with these accessrights 
 echo "<hr><h1 color='red'>test nodb database management commands</h1><br>";
 include("class.nodb.php");

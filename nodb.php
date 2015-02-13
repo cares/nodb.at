@@ -1,5 +1,6 @@
 <?php
-/* nodb procedural style */
+/* nodb in procedural-programing style */
+
 $absolute_path_to_database_root_folder = "./databases"; // assume there is a folder called database in the current working directory
 $slash = "/"; // windows_or_linux slash? linux slash is / windows slash is \
 $default_accessRights = 0700; // the access rights, (chmod 0700) that folders and files will have per default when they are created and no access rights are specified
