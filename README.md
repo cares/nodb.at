@@ -79,6 +79,7 @@ read(dbname); // delete the directory dbname with all files !!! WARNING !!! ;)
 
 </pre>
 
+# ==== not yet implemented commands ====
 
 import / export commands:
 
@@ -90,9 +91,11 @@ exportMySQL(dbname); // tries to create a MySQL-dumb of the file-based-database
 
 ## ===== FORMAT =====
 
-the format should be:
-1. simple to read (and manually edit) with a texteditor
-this is possible by a one-file-per-column-system. where simply all the values are separated by a linebreak.
+the format should be simple to read (and manually edit) with a texteditor.
+
+this is possible by a one-file-per-column-system.
+
+where simply all the values are separated by a linebreak.
 
 example:
 
@@ -113,10 +116,12 @@ value5
 </pre>
 
 
-# ==== TODO ====
+# ==== TODO/WISHLIST ====
+
+o better speed for "modify" function (it's the slowest of all of them)
+
+o build a nodbmyadmin.php that like phpmyadmin let you easily modify the database.
 
 ok implement all the functions
-
-ok build a nodbmyadmin.php that like phpmyadmin let you easily modify the database.
 
 ok remember the last used database and table and make all following operations on them
