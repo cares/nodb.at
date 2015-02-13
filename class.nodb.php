@@ -1,5 +1,10 @@
 <?php
 /* nodb "engine" in oop-style (class->object) */
+
+/* display all errors */
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
+
 class nodb {
 	
 	/* massive amounts of getters and setters */
@@ -136,7 +141,14 @@ class nodb {
 		// if the database_root_folder does not exist create it now
 		if(!is_dir($this->absolute_path_to_database_root_folder))
 		{
-			mkdir($this->absolute_path_to_database_root_folder,$this->accessRights); // grant only current user access to this folder
+			if(mkdir($this->absolute_path_to_database_root_folder,$this->accessRights))
+			{
+				// success
+			}
+			else
+			{
+				$this->error("could not create folder \"databases\".");
+			}
 		}
 	}
 	
@@ -150,21 +162,27 @@ class nodb {
 		if(empty($accessRights)) $accessRights = $this->accessRights;
 		if(empty($dbName))
 		{
-			$this->error("error: no databaseName given.");
+			$this->error("no databaseName given.");
 		}
 		else
 		{
 			$path = $this->absolute_path_to_database_root_folder.$this->slash.$dbName;
 			if(!is_dir($dbName))
 			{
-				mkdir($path,$accessRights);
-				$this->lastDatabase = $dbName;
-				$this->worked = true;
-				$this->operation("database ".$dbName." with accessrights ".$accessRights." added.");
+				if(mkdir($path,$accessRights))
+				{
+					$this->lastDatabase = $dbName;
+					$this->worked = true;
+					$this->operation("database ".$dbName." with accessrights ".$accessRights." added.");
+				}
+				else
+				{
+					$this->error("could not create folder/database: \"".$dbName."\"");
+				}
 			}
 			else
 			{
-				$this->error("error: can not create ".$path." the directory exists - not overwriting.");
+				$this->error("can not create ".$path." the directory exists - not overwriting.");
 			}
 		}
 	
@@ -189,12 +207,12 @@ class nodb {
 			}
 			else
 			{
-				$this->error("error: can not copy ".$dbNameDestination." to ".$dbNameSource." the directory ".$dbNameDestination." does not exists.");
+				$this->error("can not copy ".$dbNameDestination." to ".$dbNameSource." the directory ".$dbNameDestination." does not exists.");
 			}
 		}
 		else
 		{
-			$this->error("error: can not copy ".$dbNameSource." the directory does not exists?");
+			$this->error("can not copy ".$dbNameSource." the directory does not exists?");
 		}
 	
 		$this->operation("copied database from ".$dbNameSource." to ".$dbNameDestination."");
@@ -221,12 +239,12 @@ class nodb {
 			}
 			else
 			{
-				$this->error("error: can not rename ".$oldpath." to ".$newpath." the directory exists allready.");
+				$this->error("can not rename ".$oldpath." to ".$newpath." the directory exists allready.");
 			}
 		}
 		else
 		{
-			$this->error("error: can not rename ".$oldpath." the directory does not exists?");
+			$this->error("can not rename ".$oldpath." the directory does not exists?");
 		}
 	
 		$this->operation("renameDatabase \$dboldname ".$dboldname." \$dbnewname ".$dbnewname."");
@@ -262,7 +280,7 @@ class nodb {
 	{
 		if(empty($path))
 		{
-			echo 'f***';
+			echo 'f*** ... you just found a EasterHeck :) ';
 		}
 		if(is_dir($path))
 		{
@@ -271,10 +289,10 @@ class nodb {
 		}
 		else
 		{
-			$this->error("error: can not delete ".$path." the directory does not exists.");
+			$this->error("can not delete ".$path." the directory does not exists.");
 			$this->worked = false;
 		}
-		
+
 		return $this->worked;
 	}
 	
@@ -291,14 +309,22 @@ class nodb {
 		$path = $this->absolute_path_to_database_root_folder.$this->slash.$dbName.$this->slash.$tableName;
 		if(!is_dir($path))
 		{
-			mkdir($path,$accessRights);
+			if(mkdir($path,$accessRights))
+			{
+				// success
+			}
+			else
+			{
+				$this->error("could not create folder(table): \"".$path."\"");
+			}
+				
 			$this->lastTable = $tableName;
 			$this->lastDatabase = $dbName;
 			$this->worked = true;
 		}
 		else
 		{
-			$this->error("error: can not create table-directory ".$path." the directory exists allready.");
+			$this->error("can not create table-directory ".$path." the directory exists allready.");
 		}
 	
 		$this->operation("addTable ".$tableName." to database ".$dbName." with accessRights ".$accessRights);
@@ -315,11 +341,11 @@ class nodb {
 		
 		if(empty($tableNameSource))
 		{
-			$this->error("error: no table to copy given (\$tableNameSource is empty)");
+			$this->error("no table to copy given (\$tableNameSource is empty)");
 		}
 		else if(empty($tableNameDestination))
 		{
-			$this->error("error: no DestinationTable given, don't know where to copy the table. (\$tableNameDestination is empty)");
+			$this->error("no DestinationTable given, don't know where to copy the table. (\$tableNameDestination is empty)");
 		}
 		else
 		{
@@ -337,12 +363,12 @@ class nodb {
 				}
 				else
 				{
-					$this->error("error: can not copy ".$pathsourceource.", destination ".$pathdestination." does not exists.");
+					$this->error("can not copy ".$pathsourceource.", destination ".$pathdestination." does not exists.");
 				}
 			}
 			else
 			{
-				$this->error("error: can not copy directory ".$pathsourceource.", it does not exists?");
+				$this->error("can not copy directory ".$pathsourceource.", it does not exists?");
 			}
 		
 			$this->operation("copyTable ".$dbName."->".$tableNameSource." to ".$dbName."->".$tableNameDestination);
@@ -371,12 +397,12 @@ class nodb {
 			}
 			else
 			{
-				$this->error("error: can not rename ".$oldpath." to ".$newpath." the directory exists allready.");
+				$this->error("can not rename ".$oldpath." to ".$newpath." the directory exists allready.");
 			}
 		}
 		else
 		{
-			$this->error("error: can not rename ".$oldpath." does not exists?");
+			$this->error("can not rename ".$oldpath." does not exists?");
 		}
 	
 		$this->operation("renameTable ".$dbName."->".$tableoldname." to ".$dbName."->".$tablenewname);
@@ -398,7 +424,7 @@ class nodb {
 		}
 		else
 		{
-			$this->error("error: can not delete ".$path." the directory does not exists.");
+			$this->error("can not delete ".$path." the directory does not exists.");
 		}
 	
 		$this->operation("delTable ".$dbName."->".$tableName);
@@ -409,10 +435,11 @@ class nodb {
 	/* ================= COLUMN MANAGEMENT ================ */
 	
 	/* addColumn($dbName = "",$tableName = "",$columnName);
-	 * effectively creates a file called "columname" inside tablename
+	 * effectively creates a file called "columname" with the content <?php /* *\/ ?/> inside tablename
 	*
-	* if there are allready columns inside the directory.
-	* fill up this column with as many lines (empty) as the others "synchronizing" them in terms of line-count */
+	* if there are allready column-files inside the directory -> fill up all columns with as many lines
+	* (empty) as the others "synchronizing" them in terms of line-count
+	*/
 	public function addColumn($columnName,$tableName = "",$dbName = "",$accessRights = "")
 	{
 		$this->worked = false;
@@ -423,7 +450,8 @@ class nodb {
 	
 		$pathtable = $this->absolute_path_to_database_root_folder.$this->slash.$dbName.$this->slash.$tableName;
 		$path = $pathtable.$this->slash.$columnName.".php";
-		if(!is_file($path))
+
+		if(!is_file($path)) // does the file allready exist?
 		{
 			// are there other files in this dir
 			$files = $this->ls($pathtable);
@@ -445,24 +473,25 @@ class nodb {
 				}
 			}
 	
-			$lineCount = 0;
+			$LineTarget = 0;
 			if(!empty($first_columnFile))
 			{
 				$lines = file($pathtable.$this->slash.$first_columnFile);
-				$lineCount = count($lines);
+				$LineTarget = count($lines);
 			}
 	
-			touch($path,time());
-			chmod($path, $accessRights);
-	
-			if($lineCount > 0)
+			touch($path,time()); // create file
+			chmod($path, $accessRights); // set access rights
+			file_put_contents($path, "<?php /* \n", FILE_APPEND); // fill with initial <?php /* invisible content
+
+			if($LineTarget > 1) // fill up this column with as many lines (empty) as the others "synchronizing" them in terms of line-count 
 			{
-				for($i = 0;$i < $lineCount;$i++)
+				for($i = 1;$i < $LineTarget;$i++)
 				{
 					file_put_contents($path, "\n", FILE_APPEND);
 				}
 			}
-	
+
 			$this->lastColumn = $columnName;
 			$this->lastTable = $tableName;
 			$this->lastDatabase = $dbName;
@@ -470,7 +499,7 @@ class nodb {
 		}
 		else
 		{
-			$this->error("error: can not create file ".$path." the file allready exists?");
+			$this->error("can not create file ".$path." the file allready exists?");
 		}
 	
 		$this->operation("addColumn ".$dbName."->".$tableName."->".$columnName." with accessRights ".$accessRights);
@@ -498,12 +527,12 @@ class nodb {
 			}
 			else
 			{
-				$this->error("error: can not rename ".$oldpath." to ".$newpath." the file exists allready?");
+				$this->error("can not rename ".$oldpath." to ".$newpath." the file exists allready?");
 			}
 		}
 		else
 		{
-			$this->error("error: can not rename ".$oldpath." the file does not exists?");
+			$this->error("can not rename ".$oldpath." the file does not exists?");
 		}
 	
 		$this->operation("renameColumn ".$dbName."->".$tableName."->".$columnoldname." to ".$columnnewname);
@@ -527,7 +556,7 @@ class nodb {
 		}
 		else
 		{
-			$this->error("error: can not delete ".$path." the file does not exists.");
+			$this->error("can not delete ".$path." the file does not exists.");
 		}
 	
 		$this->operation("delColumn ".$dbName."->".$tableName."->".$columnName);
@@ -536,12 +565,15 @@ class nodb {
 	}
 	
 	/* ================= RECORD OPERATIONS ================ */
-	
 	// database content changing commands
-	/* add($index,$columnName_values,$tableName,$dbName) // adds a new line at pos $index
-	 $columnName_values has the format key:value,
-	example:
-	name:tom;age:32;message:so and so;
+
+	/*
+	 * add($index,$columnName_values,$tableName,$dbName) // adds a new line at pos $index
+	 * $columnName_values has the format key:value,
+	 * example:
+	 * $nodbObj->add("name:jimy;street:street;phone:+00981232112312;mail:mail@mail.com;","tableName","databaseName");
+	 * 
+	 * if no tableName or databaseName is given, the last in use will be used
 	*/
 	public function add($columnName_values,$tableName = "",$dbName = "")
 	{
@@ -602,7 +634,7 @@ class nodb {
 		}
 		else
 		{
-			$this->error("error: can not add to table ".$pathtable." the path does not exist?");
+			$this->error("can not add to column: ".$columnName_values." the path: ".$pathtable." does not exist?");
 		}
 	
 		$this->operation("added record ".$columnName_values." to ".$dbName."->".$tableName."->".$columnName_values);
@@ -614,6 +646,8 @@ class nodb {
 	 $columnName_values has the format key:value,
 	example:
 	name:tom;age:32;message:so and so;
+	
+	the minimum index(lineNumber) is 1, because at index(lineNumber) 0 there is the <?php /* hide content line
 	*/
 	public function insert($index,$columnName_values,$tableName = "",$dbName = "")
 	{
@@ -622,63 +656,69 @@ class nodb {
 		if(empty($tableName)) $tableName = $this->lastTable;
 		if(empty($columnName)) $columnName = $this->lastColumn;
 	
-		$pathtable = $this->absolute_path_to_database_root_folder.$this->slash.$dbName.$this->slash.$tableName;
-		if(is_dir($pathtable))
+		if($index > 0) // the minimum index(lineNumber) is 1, because at index(lineNumber) 0 there is the <?php /* hide content line
 		{
-			// get a list of all files in the table-directory
-			$files = $this->ls($pathtable);
-	
-			// iterate over key:values and make it accessible
-			$columns = explode(";",$columnName_values);
-			$columns = array_filter( $columns, 'strlen' );
-	
-			// iterate over files, compare filename to columnname, then insert value if available, else insert empty line
-			$fileCount = count($files);
-			for ($i = 0; $i < $fileCount; $i++) {
-				$currentFile = $files[$i];
-				if(!(($currentFile == ".") || ($currentFile == "..")))
-				{
-					$filename_without_ending = substr($currentFile, 0, -4); // strip away .php
-	
-					// iterate over $columns and check if such columnname:value exists
-					$columnsCount = count($columns);
-					$found = false;
-					for ($j = 0; $j < $columnsCount; $j++) {
-						$key_value = explode(":",$columns[$j]);
-						$key = $key_value[0];
-						$value = $key_value[1];
-						if($filename_without_ending == $key)
-						{
-							$found = true;
-							$path = $pathtable.$this->slash.$key.".php";
-							break;
+			$pathtable = $this->absolute_path_to_database_root_folder.$this->slash.$dbName.$this->slash.$tableName;
+			if(is_dir($pathtable))
+			{
+				// get a list of all files in the table-directory
+				$files = $this->ls($pathtable);
+		
+				// iterate over key:values and make it accessible
+				$columns = explode(";",$columnName_values);
+				$columns = array_filter( $columns, 'strlen' );
+		
+				// iterate over files, compare filename to columnname, then insert value if available, else insert empty line
+				$fileCount = count($files);
+				for ($i = 0; $i < $fileCount; $i++) {
+					$currentFile = $files[$i];
+					if(!(($currentFile == ".") || ($currentFile == "..")))
+					{
+						$filename_without_ending = substr($currentFile, 0, -4); // strip away .php
+		
+						// iterate over $columns and check if such columnname:value exists
+						$columnsCount = count($columns);
+						$found = false;
+						for ($j = 0; $j < $columnsCount; $j++) {
+							$key_value = explode(":",$columns[$j]);
+							$key = $key_value[0];
+							$value = $key_value[1];
+							if($filename_without_ending == $key)
+							{
+								$found = true;
+								$path = $pathtable.$this->slash.$key.".php";
+								break;
+							}
 						}
-					}
-					if($found)
-					{
-						// if column name found in $columnName_values and as a file, insert line with linebreak
-						$this->insertLineAt($index,$value."\n",$path);
-	
-						$this->lastDatabase = $dbName;
-						$this->lastTable = $tableName;
-						$this->lastColumn = $key;
-						$this->worked = true;
-					}
-					else
-					{
-						// if not, insert a empty line with linebreak
-						$this->insertLineAt($index,"\n",$path);
+						if($found)
+						{
+							// if column name found in $columnName_values and as a file, insert line with linebreak
+							if($this->insertLineAt($index,$value."\n",$path))
+							{
+								$this->lastDatabase = $dbName;
+								$this->lastTable = $tableName;
+								$this->lastColumn = $key;
+								$this->worked = true;
+							}
+						}
+						else
+						{
+							// if not, insert a empty line with linebreak
+							$this->insertLineAt($index,"\n",$path);
+						}
 					}
 				}
 			}
+			else
+			{
+				$this->error("can not insert into ".$pathtable." - does this path exist?");
+			}
 		}
-		else
+		else 
 		{
-			$this->error("error: can not add to table ".$pathtable." the path does not exist?");
+			$this->error("can not insert at index(lineNumber) 0, index needs to be 1 or larger");
 		}
-	
 		$this->operation("insert ".$dbName."->".$tableName."->".$tableName." at line ".$this->array2string($index)." this data ".$columnName_values);
-	
 		return $this->worked;
 	}
 	
@@ -708,63 +748,70 @@ class nodb {
 		if(empty($tableName)) $tableName = $this->lastTable;
 		if(empty($columnName)) $columnName = $this->lastColumn;
 	
-		if(is_int($index)||is_array($index))
+		if($index > 0) // the minimum index(lineNumber) is 1, because at index(lineNumber) 0 there is the <?php /* hide content line
 		{
-			$pathtable = $this->absolute_path_to_database_root_folder.$this->slash.$dbName.$this->slash.$tableName;
-			if(is_dir($pathtable))
+			if(is_int($index)||is_array($index))
 			{
-				// iterate over key:values and make it accessible
-				$columns = explode(";",$columnName_values);
-				$columns = array_filter( $columns, 'strlen' );
-	
-				// iterate over $columns and check if such columnname:value exists
-				$columnsCount = count($columns);
-				for ($j = 0; $j < $columnsCount; $j++)
+				$pathtable = $this->absolute_path_to_database_root_folder.$this->slash.$dbName.$this->slash.$tableName;
+				if(is_dir($pathtable))
 				{
-					$column2Change = explode(":",$columns[$j]);
-					$filename = $key = $column2Change[0];
-					$filename_with_ending = $filename.".php";
-	
-					$value = $column2Change[1];
-					$path_to_file = $pathtable.$this->slash.$filename_with_ending;
-					if(is_file($path_to_file))
+					// iterate over key:values and make it accessible
+					$columns = explode(";",$columnName_values);
+					$columns = array_filter( $columns, 'strlen' );
+		
+					// iterate over $columns and check if such columnname:value exists
+					$columnsCount = count($columns);
+					for ($j = 0; $j < $columnsCount; $j++)
 					{
-						$lines = file($path_to_file); // read lines
-						// update/change one line
-						if(is_int($index)) {
-							$lines[$index] = $value."\n"; // make changes // array_splice($lines,$lineNumber,1, array($line)); // 0 = insert between elements 1 = replace element
-						}
-						// update/change multiple lines
-						if(is_array($index)) {
-							$lines2ChangeCount = count($index);
-							for($i = 0; $i < $lines2ChangeCount; $i++)
-							{
-								$changeThisLine = $index[$i];
-								$lines[$changeThisLine] = $value."\n"; // make changes // array_splice($lines,$lineNumber,1, array($line)); // 0 = insert between elements 1 = replace element
+						$column2Change = explode(":",$columns[$j]);
+						$filename = $key = $column2Change[0];
+						$filename_with_ending = $filename.".php";
+		
+						$value = $column2Change[1];
+						$path_to_file = $pathtable.$this->slash.$filename_with_ending;
+						if(is_file($path_to_file))
+						{
+							$lines = file($path_to_file); // read lines
+							// update/change one line
+							if(is_int($index)) {
+								$lines[$index] = $value."\n"; // make changes // array_splice($lines,$lineNumber,1, array($line)); // 0 = insert between elements 1 = replace element
 							}
+							// update/change multiple lines
+							if(is_array($index)) {
+								$lines2ChangeCount = count($index);
+								for($i = 0; $i < $lines2ChangeCount; $i++)
+								{
+									$changeThisLine = $index[$i];
+									$lines[$changeThisLine] = $value."\n"; // make changes // array_splice($lines,$lineNumber,1, array($line)); // 0 = insert between elements 1 = replace element
+								}
+							}
+							$lines = array_values($lines); // reindex array
+							file_put_contents($path_to_file,implode($lines));	// write back to file
+								
+							$this->lastDatabase = $dbName;
+							$this->lastTable = $tableName;
+							$this->lastColumn = $key;
+							$this->worked = true;
 						}
-						$lines = array_values($lines); // reindex array
-						file_put_contents($path_to_file,implode($lines));	// write back to file
-							
-						$this->lastDatabase = $dbName;
-						$this->lastTable = $tableName;
-						$this->lastColumn = $key;
-						$this->worked = true;
+						else
+						{
+							$this->error("function change(): can not change column-file ".$path_to_file." of table ".$pathtable." does it exist?");
+						}
 					}
-					else
-					{
-						$this->error("function change(): can not change column-file ".$path_to_file." of table ".$pathtable." does it exist?");
-					}
+				}
+				else
+				{
+					$this->error("function change(): can not change column-file in directory ".$pathtable." does it exist?");
 				}
 			}
 			else
 			{
-				$this->error("function change(): can not change column-file in directory ".$pathtable." does it exist?");
+				$this->error("function change(): there is somehting wrong with the \$index=".$this->array2string($index)." given.");
 			}
 		}
 		else
 		{
-			$this->error("function change(): there is somehting wrong with the \$index=".$this->array2string($index)." given.");
+			$this->error("can not modify index(lineNumber) 0, index needs to be 1 or larger");
 		}
 	
 		$this->operation("change ".$dbName."->".$tableName."->".$tableName." at line ".$this->array2string($index)." to this data ".$columnName_values);
@@ -784,76 +831,83 @@ class nodb {
 	
 		$path2table = $this->absolute_path_to_database_root_folder.$this->slash.$dbName.$this->slash.$tableName;
 	
-		if(is_int($index)||is_array($index)||is_string($index))
+		if($index > 0) // the minimum index(lineNumber) is 1, because at index(lineNumber) 0 there is the <?php /* hide content line
 		{
-			// get all files of the given table
-			$files = $this->ls($path2table);
-	
-			$fileCount = count($files);
-			// iterate over all files in table-directory
-			for($i = 0;$i < $fileCount;$i++)
+			if(is_int($index)||is_array($index)||is_string($index))
 			{
-				$currentFile = $files[$i];
-				if(!(($currentFile == ".") || ($currentFile == "..")))
+				// get all files of the given table
+				$files = $this->ls($path2table);
+		
+				$fileCount = count($files);
+				// iterate over all files in table-directory
+				for($i = 0;$i < $fileCount;$i++)
 				{
-					$path2column = $path2table.$this->slash.$currentFile;
-					if(is_file($path2column))
+					$currentFile = $files[$i];
+					if(!(($currentFile == ".") || ($currentFile == "..")))
 					{
-						$lines = file($path2column); // read lines
-						if(is_int($index))
+						$path2column = $path2table.$this->slash.$currentFile;
+						if(is_file($path2column))
 						{
-							array_splice($lines,$index,1); // at $index replace 1 element with nothing
-							$lines = array_values($lines); // reindex array
-							file_put_contents($path2column,implode($lines));	// write back to file
+							$lines = file($path2column); // read lines
+							if(is_int($index))
+							{
+								array_splice($lines,$index,1); // at $index replace 1 element with nothing
+								$lines = array_values($lines); // reindex array
+								file_put_contents($path2column,implode($lines));	// write back to file
+		
+								$this->lastDatabase = $dbName;
+								$this->lastTable = $tableName;
+								$this->lastColumn = $columnName;
+								$this->worked = true;
+							}
+							else if(is_array($index)||is_string($index))
+							{
+								if(is_array($index))
+								{
+									$start = 0;
+									$stop = count($index);
+								}
+								else if(is_string($index))
+								{
+									$index_start_stop = split("-",$index);
+									$start = $index_start_stop[0];
+									$stop = $index_start_stop[1];
+									$stop++; // giving "0-2" the following loop would delete line 0,1 but not line 2
+								}
+		
+								// iterate over indices
+								for($j = $start;$j < $stop;$j++)
+								{
+									$lines[$j] = ""; // change specified elements to null
+								}
+		
+								$lines = array_filter( $lines, 'strlen' ); // delete all elements with null
+								$lines = array_values($lines); // reindex array
+								file_put_contents($path2column,implode($lines)); // write back to file
 	
-							$this->lastDatabase = $dbName;
-							$this->lastTable = $tableName;
-							$this->lastColumn = $columnName;
-							$this->worked = true;
+								$this->lastDatabase = $dbName;
+								$this->lastTable = $tableName;
+								$this->lastColumn = $columnName;
+								$this->worked = true;
+							}
 						}
-						else if(is_array($index)||is_string($index))
+						else
 						{
-							if(is_array($index))
-							{
-								$start = 0;
-								$stop = count($index);
-							}
-							else if(is_string($index))
-							{
-								$index_start_stop = split("-",$index);
-								$start = $index_start_stop[0];
-								$stop = $index_start_stop[1];
-								$stop++; // giving "0-2" the following loop would delete line 0,1 but not line 2
-							}
-	
-							// iterate over indices
-							for($j = $start;$j < $stop;$j++)
-							{
-								$lines[$j] = ""; // change specified elements to null
-							}
-	
-							$lines = array_filter( $lines, 'strlen' ); // delete all elements with null
-							$lines = array_values($lines); // reindex array
-							file_put_contents($path2column,implode($lines)); // write back to file
-
-							$this->lastDatabase = $dbName;
-							$this->lastTable = $tableName;
-							$this->lastColumn = $columnName;
-							$this->worked = true;
+							$this->error("function delete(): can not delete records in file-column ".$path2column." does it exist?");
 						}
-					}
-					else
-					{
-						$this->error("function delete(): can not delete records in file-column ".$path2column." does it exist?");
 					}
 				}
+			}
+			else
+			{
+				$this->error("function delete(): can not delete record, there is something wrong with the \$index:".$this->array2string($index)." given");
 			}
 		}
 		else
 		{
-			$this->error("function delete(): can not delete record, there is something wrong with the \$index:".$this->array2string($index)." given");
+			$this->error("can not delete index(lineNumber) 0, index needs to be 1 or larger");
 		}
-		
+						
 		$this->operation("delete \$index ".$this->array2string($index)." \$tableName ".$tableName." \$dbName ".$dbName);
 	
 		return $this->worked;
@@ -880,20 +934,27 @@ class nodb {
 	
 		$files = $this->ls($path_to_table);
 		$fileCount = count($files);
-	
+
 		// 0. get one record from a table read(0,$tableName,$dbName)
 		if(is_int($index))
 		{
-			for($i = 0;$i < $fileCount;$i++)
+			if($index > 0) // the minimum index(lineNumber) is 1, because at index(lineNumber) 0 there is the <?php /* hide content line
 			{
-				$currentFile = $files[$i];
-				if(!(($currentFile == ".") || ($currentFile == "..")))
+				for($i = 1;$i < $fileCount;$i++)
 				{
-					$lines = file($path_to_table.$this->slash.$currentFile);
-					$currentFile = substr($currentFile, 0, -4); // strip away .php
-					$lines[$index] = str_replace(array("\r\n", "\r", "\n"), "", $lines[$index]); // remove linebreaks
-					$result[$currentFile] = $lines[$index];
+					$currentFile = $files[$i];
+					if(!(($currentFile == ".") || ($currentFile == "..")))
+					{
+						$lines = file($path_to_table.$this->slash.$currentFile);
+						$currentFile = substr($currentFile, 0, -4); // strip away .php
+						$lines[$index] = str_replace(array("\r\n", "\r", "\n"), "", $lines[$index]); // remove linebreaks
+						$result[$currentFile] = $lines[$index];
+					}
 				}
+			}
+			else
+			{
+				$this->error("can not read index(lineNumber) 0, index needs to be 1 or larger");
 			}
 		}
 		// 1. get mutliple records from a table read(array(0,1,2),$tableName,$dbName)
@@ -961,7 +1022,7 @@ class nodb {
 		return $result;
 	}
 	
-	/* get all records from a table, top-array-keys represent the columns */
+	/* get all records from a table, every file represents a column */
 	public function readTable($tableName = "",$dbName = "")
 	{
 		$result = array();
@@ -976,7 +1037,7 @@ class nodb {
 	
 		$files = $this->ls($path_to_table);
 		$fileCount = count($files);
-		$allFiles = array();
+		$allFilesInFolder = array();
 	
 		if(is_dir($path_to_table))
 		{
@@ -985,28 +1046,28 @@ class nodb {
 				$currentFile = $files[$i];
 				if(!(($currentFile == ".") || ($currentFile == "..")))
 				{
-					$key = substr($currentFile, 0, -4); // strip away .php
-					$allFiles[$key] = file($path_to_table.$this->slash.$currentFile);
+					$key = substr($currentFile, 0, -4); // strip away .php (ending)
+					$allFilesInFolder[$key] = file($path_to_table.$this->slash.$currentFile);
 				}
 			}
 		}
 	
-		reset($allFiles);
-		$first_key = key($allFiles);
-		$lines = $allFiles[$first_key];
+		reset($allFilesInFolder);
+		$first_key = key($allFilesInFolder);
+		$lines = $allFilesInFolder[$first_key];
 		$linesCount = count($lines);
 	
 		// iterate over indices
-		for($j = 0;$j < $linesCount;$j++)
+		for($lineNumber = 1;$lineNumber < $linesCount;$lineNumber++)
 		{
-			$currentIndex = $j;
+			$currentIndex = $lineNumber;
 			$subArray = array();
 	
 			// iterate over files/columns
 			$line = array();
-			foreach ($allFiles as $key => $lines)
+			foreach ($allFilesInFolder as $key => $lines)
 			{
-				$value = str_replace(array("\r\n", "\r", "\n"), "", $lines[$j]); // remove linebreaks
+				$value = str_replace(array("\r\n", "\r", "\n"), "", $lines[$lineNumber]); // remove linebreaks
 				$line[$key] = $value;
 			}
 			$result[] = $line;
@@ -1046,7 +1107,7 @@ class nodb {
 				}
 				else
 				{
-					$this->error("error: can access ".$path." does it exist?");
+					$this->error("can access ".$path." does it exist?");
 				}
 			}
 		}
@@ -1106,7 +1167,7 @@ class nodb {
 		}
 		else
 		{
-			$this->error("error: can not search column-file ".$path." the file does not exist?");
+			$this->error("can not search column-file ".$path." the file does not exist?");
 		}
 	
 		$this->operation("where \$searchFor ".$searchFor." \$columnName ".$columnName." \$tableName ".$tableName." $dbName ".$dbName);
@@ -1124,22 +1185,32 @@ class nodb {
 	// exportMySQL($dbName); // tries to create a MySQL-dumb of the file-based-database
 	
 	
-	/* ================= LIBRARY ================
+	/* ================= LIBRARY of the LIBRARY ================
 	 * don't call these functions directly unless you know what you do.
 	* these functions are used by the above functons. */
 	/* $lineNumber = 1; // lineNumber at which the content will be inserted */
 	public function insertLineAt($lineNumber,$line,$path)
 	{
-		// read into array
-		$lines = file($path);
-		// add second line
-		array_splice($lines,$lineNumber,0, array($line));
-		// reindex array
-		$array_reindexed = array_values($lines);
-		// write back to file
-		file_put_contents($path,implode($array_reindexed));
+		if($lineNumber > 0) // the minimum index(lineNumber) is 1, because at index(lineNumber) 0 there is the <?php /* hide content line
+		{
+			// read into array
+			$lines = file($path);
+			// add second line
+			array_splice($lines,$lineNumber,0, array($line));
+			// reindex array
+			$array_reindexed = array_values($lines);
+			// write back to file
+			file_put_contents($path,implode($array_reindexed));
+			return true;
+		}
+		else
+		{
+			$this->worked = false;
+			$this->error("can not insert at index(lineNumber) 0 into ".$path." - this is not allowerd, because there is the <?php /* hiding content tag ");
+			return false;
+		}
 	}
-	/* list directory, return array
+	/* list directory, return array of all file-names and directory-names except . and ..
 	 * $path = the directory to scan
 	* $sort = Optional. Specifies how to compare the array elements/items. Possible values:
 	* 0 = SORT_REGULAR - Default. Compare items normally (don't change types)
@@ -1153,8 +1224,13 @@ class nodb {
 	public function ls($path,$sort = SORT_REGULAR)
 	{
 		$files = array();
-		$files = scandir($path);
+		$files = array_diff(scandir($path), array('..', '.'));
 	
+		if($files[2] == 2)
+		{
+			echo "WTF?";
+		}
+		
 		if($sort != 0)
 		{
 			sort($files,$sort);
@@ -1166,7 +1242,24 @@ class nodb {
 	/* recursively copy files and folders */
 	public function recurse_copy($src, $dst) {
 		$dir = opendir ( $src );
-		@mkdir ( $dst );
+		if($dir)
+		{
+			// success
+		}
+		else
+		{
+			$this->error("could not open folder: \"".$dir."\"");
+		}
+		
+		if(@mkdir ( $dst ))
+		{
+			// success
+		}
+		else
+		{
+			$this->error("could not create folder: \"".$dst."\"");
+		}
+
 		while ( false !== ($file = readdir ( $dir )) ) {
 			if (($file != '.') && ($file != '..')) {
 				if (is_dir ( $src . '/' . $file )) {
@@ -1198,7 +1291,7 @@ class nodb {
 			}
 		}
 		if (! rmdir ( $dir )) {
-			$this->error ( "error: could not remove directory: " . $dir );
+			$this->error ( "could not remove directory: " . $dir );
 		}
 	}
 	
@@ -1233,7 +1326,7 @@ class nodb {
 		$this->worked = false;
 		if($this->warnings)
 		{
-			trigger_error($message);
+			trigger_error("error: ".$message);
 		}
 		
 		if($this->logging)

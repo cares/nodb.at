@@ -69,18 +69,18 @@ $name = "jerry";
 success($nodbObj->add("name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;"));
 
 comment("insert record at position (lineNumber given)");
-$name = "joe";
-success($nodbObj->insert(1,"name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;"));
-$name = "jim";
-success($nodbObj->insert(3,"name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;"));
-$name = "jeremy";
-success($nodbObj->insert(0,"name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;"));
+success($nodbObj->insert(1,"name:joe;street:street;phone:+00981232112312;mail:joe@mail.com;"));
+success($nodbObj->insert(3,"name:jim;street:street;phone:+00981232112312;mail:jim@mail.com;"));
+success($nodbObj->insert(2,"name:jennifer;street:street;phone:+00981232112312;mail:jennifer@mail.com;"));
+
+comment("insert record at illegal index(lineNumber) 0 - you get an error");
+success($nodbObj->insert(0,"name:jennifer;street:street;phone:+00981232112312;mail:jennifer@mail.com;"));
 
 comment("change/replace/update record");	
 success($nodbObj->change(2,"name:jill;phone:+12345;"));
 
 comment("change/replace/update multiple records");
-success($nodbObj->change(array(0,1,2),"name:NewName;phone:+NewNumber;street:NewStreet;"));
+success($nodbObj->change(array(1,2,3),"name:NewName;phone:+NewNumber;street:NewStreet;"));
 
 comment("change/replace/update the all records where name = jill with joe");
 success($nodbObj->change($nodbObj->where("NewName","name"),"name:joe;phone:+999999;"));
@@ -88,15 +88,15 @@ success($nodbObj->change($nodbObj->where("NewName","name"),"name:joe;phone:+9999
 echo "<hr><h1 color='red'>try read commands</h1><br>";
 
 comment("get one single record from table");
-print_r_html($nodbObj->read(0));
+print_r_html($nodbObj->read(1));
 success($nodbObj->worked);
 
 comment("get one mutliple record from a table");
-print_r_html($nodbObj->read(array(0,1,2)));
+print_r_html($nodbObj->read(array(1,2,3)));
 success($nodbObj->worked);
 
 comment("get a range of records from a table");
-print_r_html($nodbObj->read("0-3"));
+print_r_html($nodbObj->read("1-3"));
 success($nodbObj->worked);
 
 comment("get all records where name == 'jim' \$nodbObj->read(\$nodbObj->where('jim'));");
@@ -143,10 +143,10 @@ comment("try to delete with problematic index, you should see an error following
 success($nodbObj->delete(null));
 
 comment("delete one record");
-success($nodbObj->delete(0));
+success($nodbObj->delete(1));
 
 comment("delete multiple records");
-success($nodbObj->delete(array(0,1,2)));
+success($nodbObj->delete(array(1,2,3)));
 
 comment("add record at end (no lineNumber given)");
 $name = "tom";
@@ -155,7 +155,7 @@ $name = "jerry";
 success($nodbObj->add("name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;"));
 
 comment("delete range of records");
-success($nodbObj->delete(("0-2")));
+success($nodbObj->delete("0-2"));
 
 echo "<hr><h1 color='red'>import / export commands</h1><br>";
 

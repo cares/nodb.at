@@ -30,10 +30,12 @@ class.nodb.bench.php	-> benchmark intended to be used on a webserver and run by 
 class.nodb.bench.terminal.php -> same benchmark intended to be run on terminal (no 30seconds timeout like on webserver)
 
 # === features: ===
++ files are not visible to users/browsers/visitors (all .php files that give no output when run) (needs to be implemented next)
 + smal database size (10000 records less than 500kb)
 + all files are plain-text and can be used/edited with any text-editing software (no cryptic format)
 + speed is ok 1000 records write, modify, read, delete 
 
++ insert, modify, delete multiple records in one go! (one command) 
 + remembers the last used database/table
 + ASAP simple folder/file based system
 + error and operation/process logging
@@ -117,6 +119,16 @@ value5
 
 
 # ==== TODO/WISHLIST ====
+
+o files are not visible to users/browsers/visitors (all .php files that give no output when run) 
+
+<?php /*
+jeremy@mail.com
+tom@mail.com
+joe@mail.com
+jerry@mail.com
+jim@mail.com
+*/ ?>
 
 o better speed for "modify" function (it's the slowest of all of them)
 
