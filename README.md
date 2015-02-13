@@ -1,6 +1,39 @@
 # ==== nodb.at ====
 
+is a (text)-file-and-folder based database with the concept of:
+
+all files.php (representing the tables) and folders (representing databases)
+
+    database = folder
+
+    table = subfolder
+
+    column = file in subfolder
+
+    record = a line in column-file ;)
+
+so theoretically you could have a table inside a table or even work with filesystem links (linux ln -sv command)
+
+# ==== files ====
+
+the first version was procedural
+
+nodb.php		-> the database "engine"
+nodb.test.php		-> automated test of engine
+
+---> you should use the second version which is written in oop-class-objects style:
+
+class.nodb.php		-> the database "engine"
+class.nodb.test.php	-> automated test, use this as getting-started-example. 
+
+class.nodb.bench.php	-> benchmark intended to be used on a webserver and run by a browser
+class.nodb.bench.terminal.php -> same benchmark intended to be run on terminal (no 30seconds timeout like on webserver)
+
 # === features: ===
++ smal database size (10000 records less than 500kb)
++ all files are plain-text and can be used/edited with any text-editing software (no cryptic format)
++ speed is ok 1000 records write, modify, read, delete 
+
 + remembers the last used database/table
 + ASAP simple folder/file based system
 + error and operation/process logging
@@ -8,24 +41,10 @@
 
 check out nodb.test.php for examples.
 
-[https://github.com/developerATdwavesDOTde/nodb.at/blob/master/nodb.test.php](https://github.com/developerATdwavesDOTde/nodb.at/blob/master/nodb.test.php)
+[https://github.com/developerATdwavesDOTde/nodb.at/blob/master/nodb.test.php]
+(https://github.com/developerATdwavesDOTde/nodb.at/blob/master/nodb.test.php)
 
-# ==== about ====
-
-file and directory based php database
-
-is my own implementation of a file-based database for php. ASAP - as simple as possible
-
-the ide is like this
-
-database = folder
-
-table = subfolder
-
-column = file in subfolder ;)
-so theoretically you could have a table inside a table or even work with filesystem links (linux ln -sv command)
-
-## implemented commands:
+# ==== implemented commands ====
 
 <pre>
 // database management commands
@@ -68,6 +87,7 @@ importMySQL(mysqldumb); // parses the mysqldumb and tries to create a file-based
 
 exportMySQL(dbname); // tries to create a MySQL-dumb of the file-based-database
 </pre>
+
 ## ===== FORMAT =====
 
 the format should be:

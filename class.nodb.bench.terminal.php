@@ -1,6 +1,18 @@
 <?php
-echo "
-================== running nodb.at benchmark ================== 
+/*
+# make shure you have php5-cli - commandline-Interpreter for scripting language PHP5 installed (php5-cgi is not enough)
+# debian way of installing
+
+apt-get update
+apt-get install php5-cli
+
+# than you should be able to call it from command line like this:
+
+php5-cli -f class.nodb.bench.terminal.php 100 # run the benchmark with 100 records to write, modify, read and delete.
+*/
+
+echo 
+"================== running nodb.at benchmark ================== 
 /## /##                      /##                                
 | ##| ##                     | ##                               
 /#######   /######   /#######| #######      /######  /######    
@@ -15,7 +27,8 @@ echo "
 include("class.nodb.php");
 include("time.php");
 
-comment("preparing bench");
+global $argv;
+var_dump($argv);
 
 if (isset($argv[1])) {
 	$repeats = $argv[1];
@@ -24,6 +37,13 @@ else
 {
 	$repeats = 10;
 }
+
+echo
+"================== ".$repeats." records will be written, modified, read and deleted
+";
+
+
+comment("preparing bench");
 
 $nodbObj = new nodb("./databases"); // specify root folder where all databases reside in
 $nodbObj->logging = false; // logging slows it down
