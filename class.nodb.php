@@ -55,7 +55,7 @@ class nodb {
 		$this->slash = $slash;
 	}
 
-	public $accessRights = 0700; // the access rights, (chmod 0700) that folders and files will have per default when they are created and no access rights are specified
+	public $accessRights = 0700; // default access rights, (chmod 0700 = drwx------ = only creating user (www-data) has access) that folders and files will have per default when they are created and no access rights are specified
 	public function getaccessRights() {
 		return $this->accessRights;
 	}
@@ -144,6 +144,7 @@ class nodb {
 			if(mkdir($this->absolute_path_to_database_root_folder,$this->accessRights))
 			{
 				// success
+				// chmod($this->absolute_path_to_database_root_folder,$this->accessRights);
 			}
 			else
 			{
@@ -156,10 +157,9 @@ class nodb {
 	
 	/* database management commands
 	addDatabase(dbname); create a folder inside folder database with the name $dbName */
-	public function addDatabase($dbName,$accessRights = "")
+	public function addDatabase($dbName)
 	{
 		$this->worked = false;
-		if(empty($accessRights)) $accessRights = $this->accessRights;
 		if(empty($dbName))
 		{
 			$this->error("no databaseName given.");
@@ -169,11 +169,12 @@ class nodb {
 			$path = $this->absolute_path_to_database_root_folder.$this->slash.$dbName;
 			if(!is_dir($dbName))
 			{
-				if(mkdir($path,$accessRights))
+				if(mkdir($path,$this->accessRights))
 				{
+					chmod($path,$this->accessRights);
 					$this->lastDatabase = $dbName;
 					$this->worked = true;
-					$this->operation("database ".$dbName." with accessrights ".$accessRights." added.");
+					$this->operation("database ".$dbName." with accessrights ".$this->accessRights." added.");
 				}
 				else
 				{
@@ -299,19 +300,19 @@ class nodb {
 	/* ================= TABLE MANAGEMENT ================ */
 	
 	/* addTable(dbname = "",tablename); // effectively create a new folder "tablename" inside the folder "dbname" */
-	public function addTable($tableName,$dbName = "",$accessRights = "")
+	public function addTable($tableName,$dbName = "")
 	{
 		$this->worked = false;
 		if(empty($dbName)) $dbName = $this->lastDatabase;
 		if(empty($tableName)) $tableName = $this->lastTable;
-		if(empty($accessRights)) $accessRights = $this->accessRights;
 	
 		$path = $this->absolute_path_to_database_root_folder.$this->slash.$dbName.$this->slash.$tableName;
 		if(!is_dir($path))
 		{
-			if(mkdir($path,$accessRights))
+			if(mkdir($path,$this->accessRights))
 			{
 				// success
+				chmod($path,$this->accessRights);
 			}
 			else
 			{
@@ -327,7 +328,7 @@ class nodb {
 			$this->error("can not create table-directory ".$path." the directory exists allready.");
 		}
 	
-		$this->operation("addTable ".$tableName." to database ".$dbName." with accessRights ".$accessRights);
+		$this->operation("addTable ".$tableName." to database ".$dbName." with accessRights ".$this->accessRights);
 	
 		return $this->worked;
 	}
@@ -440,10 +441,9 @@ class nodb {
 	* if there are allready column-files inside the directory -> fill up all columns with as many lines
 	* (empty) as the others "synchronizing" them in terms of line-count
 	*/
-	public function addColumn($columnName,$tableName = "",$dbName = "",$accessRights = "")
+	public function addColumn($columnName,$tableName = "",$dbName = "")
 	{
 		$this->worked = false;
-		if(empty($accessRights)) $accessRights = $this->accessRights;
 		if(empty($dbName)) $dbName = $this->lastDatabase;
 		if(empty($tableName)) $tableName = $this->lastTable;
 		if(empty($columnName)) $columnName = $this->lastColumn;
@@ -481,7 +481,7 @@ class nodb {
 			}
 	
 			touch($path,time()); // create file
-			chmod($path, $accessRights); // set access rights
+			chmod($path, $this->accessRights); // set access rights
 			file_put_contents($path, "<?php /* \n", FILE_APPEND); // fill with initial <?php /* invisible content
 
 			if($LineTarget > 1) // fill up this column with as many lines (empty) as the others "synchronizing" them in terms of line-count 
@@ -502,7 +502,7 @@ class nodb {
 			$this->error("can not create file ".$path." the file allready exists?");
 		}
 	
-		$this->operation("addColumn ".$dbName."->".$tableName."->".$columnName." with accessRights ".$accessRights);
+		$this->operation("addColumn ".$dbName."->".$tableName."->".$columnName." with accessRights ".$this->accessRights);
 	
 		return $this->worked;
 	}
@@ -722,7 +722,7 @@ class nodb {
 		return $this->worked;
 	}
 	
-	/* function change($index,$columnName_values,$tableName = "",$dbName = "")
+	/* function update($index,$columnName_values,$tableName = "",$dbName = "")
 	
 	update/change one/multiple existing record(s).
 	
@@ -741,7 +741,7 @@ class nodb {
 	
 	change/updates/replace/modify the column "name" with jill at the the first three records of $tableName
 	*/
-	public function change($index,$columnName_values,$tableName = "",$dbName = "")
+	public function update($index,$columnName_values,$tableName = "",$dbName = "")
 	{
 		$this->worked = false;
 		if(empty($dbName)) $dbName = $this->lastDatabase;
@@ -795,18 +795,18 @@ class nodb {
 						}
 						else
 						{
-							$this->error("function change(): can not change column-file ".$path_to_file." of table ".$pathtable." does it exist?");
+							$this->error("function update(): can not change column-file ".$path_to_file." of table ".$pathtable." does it exist?");
 						}
 					}
 				}
 				else
 				{
-					$this->error("function change(): can not change column-file in directory ".$pathtable." does it exist?");
+					$this->error("function update(): can not change column-file in directory ".$pathtable." does it exist?");
 				}
 			}
 			else
 			{
-				$this->error("function change(): there is somehting wrong with the \$index=".$this->array2string($index)." given.");
+				$this->error("function update(): there is somehting wrong with the \$index=".$this->array2string($index)." given.");
 			}
 		}
 		else
@@ -925,7 +925,6 @@ class nodb {
 		$result = array();
 	
 		$this->worked = false;
-		if(empty($accessRights)) $accessRights = $this->accessRights;
 		if(empty($dbName)) $dbName = $this->lastDatabase;
 		if(empty($tableName)) $tableName = $this->lastTable;
 		if(empty($columnName)) $columnName = $this->lastColumn;
@@ -1028,7 +1027,6 @@ class nodb {
 		$result = array();
 	
 		$this->worked = false;
-		if(empty($accessRights)) $accessRights = $this->accessRights;
 		if(empty($dbName)) $dbName = $this->lastDatabase;
 		if(empty($tableName)) $tableName = $this->lastTable;
 		if(empty($columnName)) $columnName = $this->lastColumn;
@@ -1084,7 +1082,6 @@ class nodb {
 		$result = array();
 	
 		$this->worked = false;
-		if(empty($accessRights)) $accessRights = $this->accessRights;
 		if(empty($dbName)) $dbName = $this->lastDatabase;
 		if(empty($tableName)) $tableName = $this->lastTable;
 		if(empty($columnName)) $columnName = $this->lastColumn;
@@ -1210,20 +1207,27 @@ class nodb {
 			return false;
 		}
 	}
-	/* list directory, return array of all file-names and directory-names except . and ..
-	 * $path = the directory to scan
-	* $sort = Optional. Specifies how to compare the array elements/items. Possible values:
-	* 0 = SORT_REGULAR - Default. Compare items normally (don't change types)
-	* 1 = SORT_NUMERIC - Compare items numerically
-	* 2 = SORT_STRING - Compare items as strings
-	* 3 = SORT_LOCALE_STRING - Compare items as strings, based on current locale
-	* 4 = SORT_NATURAL - Compare items as strings using natural ordering
-	* 5 = SORT_FLAG_CASE -
-	http://php.net/manual/en/array.sorting.php
-	*/
-	public function ls($path,$sort = SORT_REGULAR)
+
+	/* list directory, return array of all file-names and directory-names except . and .. */
+	public function ls($path) {
+		$files = array();
+		if ($handle = opendir ( $path )) {
+			while ( false !== ($file = readdir ( $handle )) ) {
+				if ($file != "." && $file != "..") {
+					$files[] = $file;
+				}
+			}
+			closedir ( $handle );
+		}
+		
+		return $files;
+	}
+	
+	/* returns strange stuff */
+	public function ls_failed($path,$sort = SORT_REGULAR)
 	{
 		$files = array();
+		$current = getcwd();
 		$files = array_diff(scandir($path), array('..', '.'));
 	
 		if($files[2] == 2)
@@ -1254,6 +1258,7 @@ class nodb {
 		if(@mkdir ( $dst ))
 		{
 			// success
+			chmod($dst, $this->accessRights);
 		}
 		else
 		{

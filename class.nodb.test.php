@@ -15,7 +15,7 @@ echo($nodbObj);
 
 echo "<hr><h1 color='red'>test database commands</h1><br>";
 comment("create database");
-success($nodbObj->addDatabase("databaseTest1",$accessRights));
+success($nodbObj->addDatabase("databaseTest1"));
 
 comment("copy database");
 success($nodbObj->copyDatabase("databaseTest1","databaseTest2"));
@@ -29,10 +29,10 @@ success($nodbObj->delDatabase("databaseTest3"));
 echo "<hr><h1 color='red'>test table commands</h1><br>";
 
 comment("create table");
-success($nodbObj->addTable("testTable1","databaseTest1",$accessRights));
+success($nodbObj->addTable("testTable1","databaseTest1"));
 
 comment("copy table");
-success($nodbObj->copyTable("testTable1","testTable2","databaseTest1",$accessRights));
+success($nodbObj->copyTable("testTable1","testTable2","databaseTest1"));
 
 comment("rename table");
 success($nodbObj->renameTable("testTable2","testTable3","databaseTest1"));
@@ -43,10 +43,10 @@ success($nodbObj->delTable("testTable3","databaseTest1"));
 echo "<hr><h1 color='red'>test column commands</h1><br>";
 
 comment("create column");
-success($nodbObj->addColumn("columnTest1","testTable1","databaseTest1",$accessRights));
+success($nodbObj->addColumn("columnTest1","testTable1","databaseTest1"));
 
 comment("create column");
-success($nodbObj->addColumn("columnTest2","testTable1","databaseTest1",$accessRights));
+success($nodbObj->addColumn("columnTest2","testTable1","databaseTest1"));
 
 comment("rename column");
 success($nodbObj->renameColumn("columnTest2","columnTest3","testTable1"));
@@ -57,16 +57,15 @@ success($nodbObj->delColumn("columnTest3"));
 
 echo "<hr><h1 color='red'>test record management commands</h1><br>";
 
-success($nodbObj->addColumn("name","testTable1","databaseTest1",$accessRights));
-success($nodbObj->addColumn("street","testTable1","databaseTest1",$accessRights));
-success($nodbObj->addColumn("phone","testTable1","databaseTest1",$accessRights));
-success($nodbObj->addColumn("mail","testTable1","databaseTest1",$accessRights));
+success($nodbObj->addColumn("name","testTable1","databaseTest1"));
+success($nodbObj->addColumn("street","testTable1","databaseTest1"));
+success($nodbObj->addColumn("phone","testTable1","databaseTest1"));
+success($nodbObj->addColumn("mail","testTable1","databaseTest1"));
 
 comment("add record at end (no lineNumber given)");
-$name = "tom";
-success($nodbObj->add("name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;"));
+success($nodbObj->add("name:tom;street:street;phone:+00981232112312;mail:tom@mail.com;"));
 $name = "jerry";
-success($nodbObj->add("name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;"));
+success($nodbObj->add("name:tom;street:street;phone:+00981232112312;mail:tom@mail.com;"));
 
 comment("insert record at position (lineNumber given)");
 success($nodbObj->insert(1,"name:joe;street:street;phone:+00981232112312;mail:joe@mail.com;"));
@@ -77,13 +76,13 @@ comment("insert record at illegal index(lineNumber) 0 - you get an error");
 success($nodbObj->insert(0,"name:jennifer;street:street;phone:+00981232112312;mail:jennifer@mail.com;"));
 
 comment("change/replace/update record");	
-success($nodbObj->change(2,"name:jill;phone:+12345;"));
+success($nodbObj->update(2,"name:jill;phone:+12345;"));
 
 comment("change/replace/update multiple records");
-success($nodbObj->change(array(1,2,3),"name:NewName;phone:+NewNumber;street:NewStreet;"));
+success($nodbObj->update(array(1,2,3),"name:NewName;phone:+NewNumber;street:NewStreet;"));
 
 comment("change/replace/update the all records where name = jill with joe");
-success($nodbObj->change($nodbObj->where("NewName","name"),"name:joe;phone:+999999;"));
+success($nodbObj->update($nodbObj->where("NewName","name"),"name:joe;phone:+999999;"));
 
 echo "<hr><h1 color='red'>try read commands</h1><br>";
 
@@ -113,20 +112,14 @@ $nodbObj->addColumn("name");
 $nodbObj->addColumn("street");
 $nodbObj->addColumn("phone");
 $nodbObj->addColumn("mail");
-$name = "tom";
-$nodbObj->add("name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;");
-$name = "jerry";
-$nodbObj->add("name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;");
+$nodbObj->add("name:tom;street:street;phone:+00981232112312;mail:tom@mail.com;");
+$nodbObj->add("name:jerry;street:street;phone:+00123212323232;mail:jerry@mail.com;");
 $nodbObj->addColumn("columnTest2");
-$name = "tom";
-$nodbObj->add("name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;");
-$name = "jerry";
-$nodbObj->add("name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;");
+$nodbObj->add("name:tom;street:street;phone:+00981232112312;mail:tom@mail.com;");
+$nodbObj->add("name:jerry;street:street;phone:+00981232112312;mail:jerry@mail.com;");
 $nodbObj->addColumn("columnTest3");
-$name = "tom";
-$nodbObj->add("name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;");
-$name = "jerry";
-$nodbObj->add("name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;");
+$nodbObj->add("name:tom;street:street;phone:+00981232112312;mail:tom@mail.com;");
+$nodbObj->add("name:jerry;street:street;phone:+00981232112312;mail:jerry@mail.com;");
 /* CREATE MORE DATA FINISHED */
 
 comment("get whole database as a object-array with sub arrays");
@@ -149,10 +142,8 @@ comment("delete multiple records");
 success($nodbObj->delete(array(1,2,3)));
 
 comment("add record at end (no lineNumber given)");
-$name = "tom";
-success($nodbObj->add("name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;"));
-$name = "jerry";
-success($nodbObj->add("name:".$name.";street:street;phone:+00981232112312;mail:".$name."@mail.com;"));
+success($nodbObj->add("name:tom;street:street;phone:+00981232112312;mail:tom@mail.com;"));
+success($nodbObj->add("name:jerry;street:street;phone:+00981232112312;mail:jerry@mail.com;"));
 
 comment("delete range of records");
 success($nodbObj->delete("0-2"));
