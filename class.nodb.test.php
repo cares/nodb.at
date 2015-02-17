@@ -63,9 +63,11 @@ success($nodbObj->addColumn("phone","testTable1","databaseTest1"));
 success($nodbObj->addColumn("mail","testTable1","databaseTest1"));
 
 comment("add record at end (no lineNumber given)");
-success($nodbObj->add("name:tom;street:street;phone:+00981232112312;mail:tom@mail.com;"));
-$name = "jerry";
-success($nodbObj->add("name:tom;street:street;phone:+00981232112312;mail:tom@mail.com;"));
+success($nodbObj->add("name:tom;street:street;mail:tom@mail.com;")); // add tom without phone number (should insert empty line)
+success($nodbObj->add("name:Sandra;street:street;phone:+000000000000000;mail:sandra@mail.com;"));
+success($nodbObj->add("name:Sellerie;street:street;phone:+111111111111111;mail:sellerie@mail.com;"));
+success($nodbObj->add("name:Sauerkraut;phone:+22222222222222;mail:sauerkraut@mail.com;")); // add without street
+success($nodbObj->add("name:jerry;street:street;phone:+33333333333333333;mail:jerry@mail.com;"));
 
 comment("insert record at position (lineNumber given)");
 success($nodbObj->insert(1,"name:joe;street:street;phone:+00981232112312;mail:joe@mail.com;"));
@@ -146,9 +148,11 @@ success($nodbObj->add("name:tom;street:street;phone:+00981232112312;mail:tom@mai
 success($nodbObj->add("name:jerry;street:street;phone:+00981232112312;mail:jerry@mail.com;"));
 
 comment("delete range of records");
-success($nodbObj->delete("0-2"));
+success($nodbObj->delete("1-2"));
 
 echo "<hr><h1 color='red'>import / export commands</h1><br>";
+
+echo "... not yet implemented. sry.";
 
 // importMySQL($mysqldumb); // parses the mysqldumb and tries to create a file-based database
 
