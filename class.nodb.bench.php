@@ -58,7 +58,7 @@ echo "<h1 >write bench completed in: ".currentTimeMS(). " ms</h1><hr>";
 comment("starting modify Bench: modifying ".$repeats."x records");
 for($i = 0;$i < $repeats;$i++)
 {
-	$nodbObj->change($i,"Name:Nodb.at - Opensource Database - works great;Phone:+22(222) 22 22 1;EMail:open@sourceRocks.org;");
+	$nodbObj->update($i,"Name:Nodb.at - Opensource Database - works great;Phone:+22(222) 22 22 1;EMail:open@sourceRocks.org;");
 }
 
 echo "<hr><h1 >modify bench completed in: ".currentTimeMS(). " ms";

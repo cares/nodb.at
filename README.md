@@ -120,7 +120,10 @@ value5
 
 # ==== TODO/WISHLIST ====
 
-o files are not visible to users/browsers/visitors (all .php files that give no output when run) 
+o command que to make this multiuser/multithreadable
+
+ok files are not visible to users/browsers/visitors (all .php files that give no output when run) 
+... fixed that.
 
 <?php /*
 jeremy@mail.com

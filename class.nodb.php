@@ -864,7 +864,7 @@ class nodb {
 							}
 							else if(is_string($index))
 							{
-								$index_start_stop = split("-",$index);
+								$index_start_stop = explode("-",$index);
 								$start = $index_start_stop[0];
 								$stop = $index_start_stop[1];
 								$stop++; // giving "0-2" the following loop would delete line 0,1 but not line 2
@@ -938,7 +938,14 @@ class nodb {
 					$currentFile = $files[$i];
 					$lines = file($path_to_table.$this->slash.$currentFile);
 					$currentFile = substr($currentFile, 0, -4); // strip away .php
-					$lines[$index] = str_replace(array("\r\n", "\r", "\n"), "", $lines[$index]); // remove linebreaks
+					if(isset($lines[$index]))
+					{
+						$lines[$index] = str_replace(array("\r\n", "\r", "\n"), "", $lines[$index]); // remove linebreaks
+					}
+					else
+					{
+						// häh?
+					}
 					$result[$currentFile] = $lines[$index];
 				}
 			}
@@ -975,7 +982,7 @@ class nodb {
 		// 2. get a range of records "from a table read("0-3")"
 		if(is_string($index) && strpos($index,'-'))
 		{
-			$index_start_stop = split("-",$index);
+			$index_start_stop = explode("-",$index);
 			$start = $index_start_stop[0];
 			$stop = $index_start_stop[1];
 	
